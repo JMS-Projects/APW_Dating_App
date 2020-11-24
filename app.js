@@ -193,7 +193,7 @@ async function matchResp(result, response){
         //the await must be wrapped in a try/catch in case the promise rejects
         try{
         await result.data.forEach((item) =>{
-            page+=`Match ${++count}: ${item.name} age ${item.age} <br>`;
+            page+=`Match ${++count}: ${item.name} age ${item.age} hobbies include: ${item.hobbies} <button>Chat Now!</button><br>`;
             });
         } catch (e){
             page+=e.message;
