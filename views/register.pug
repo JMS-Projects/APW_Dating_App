@@ -1,0 +1,49 @@
+doctype html
+html(lang="en")
+    head
+        title="Registration"
+    body
+    h1 Register
+    form(action="/register" method="post")
+        fieldset(style="display: inline-block")
+            legend Fill out to register
+            table
+                tr
+                    td
+                        | Username:
+                    td
+                        input(type="text" id="uName" name="uName")
+
+                tr
+                    td
+                        | Password:
+                    td
+                        input(type="password" id="pWord" name="pWord")
+
+                tr
+                    td
+                        | Email:
+                    td
+                        input(type="text" id="eMail" name="eMail")
+
+                tr
+                    td
+                        | City:
+                    td
+                        input(type="text" id="city" name="city")
+
+                tr
+                    td
+                        | State:
+                    td
+                        input(type="text" id="state" name="state")
+                tr
+                    td
+                        input(type="submit" value="Register" method="post")
+                    td
+                        input(type="reset" value="Clear")
+    if incomplete
+        h2 You need to fill out all the fields
+            
+
+

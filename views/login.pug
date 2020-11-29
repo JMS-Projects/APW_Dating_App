@@ -1,0 +1,22 @@
+doctype html
+html(lang="en")
+head
+  title Dating App Registration
+form(action='/login' method='post')
+  h1 Please fill in your login information
+  |     Enter your username 
+  input(type="text" id="uName" name="uName")
+  br
+  br
+  |     Enter your password 
+  input(type="password" id="pWord" name="pWord")
+  br
+  br
+  input(type='submit' value='Login' method='post')
+br
+if incomplete
+ h2 You need to fill out all fields
+br
+a(href='/') Home Page
+br
+a(href='/register') Register here

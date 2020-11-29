@@ -1,9 +1,13 @@
-var http = require("http");
-//var profile = require("./profile.js");
-var qString = require("querystring");
-let dbManager = require('./dbManager');
-let express = require("express");
+const http = require("http");
+//const profile = require("./profile.js");
+const qString = require("querystring");
+const express = require("express");
+const dbManager = require('./dbManager');
+const User = require("./User.js");
 let app = express();
+
+app.set('views', './views');
+app.set('view engine', 'pug');
 
 app.get('/', function (req, res){
     res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
@@ -22,15 +26,13 @@ app.get('/search', function(req, res, next){
 });
 
 app.get('/login', function(req, res, next){
-    logResp(null, res).then(
-    page=> {   res.send(page); }
-    ).catch(next);
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for login page`);
+    res.render('login');
 });
 
 app.get('/register', function(req, res, next){
-    regResp(null, res).then(
-	page=> {    res.send(page); }
-    ).catch(next);
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for registration page`);
+    res.render('register');
 });
 
 app.get('/match', function(req, res, next){
@@ -52,13 +54,12 @@ function moveOn(postData){
     //handle empty data
     for (property in postParams){
 	if (postParams[property].toString().trim() == ''){
-        //proceed = false;
+        proceed = false;
 	}
     }
     return proceed;
 }
-
-
+/*
 async function regResp(info, res){
     let page = '<html><head><title>Dating App Registration</title></head>' +
     '<body> <form method="post">' +
@@ -97,23 +98,7 @@ async function regResp(info, res){
     return page;
 
 }
-
-async function logResp(info, res){
-    let page = '<html><head><title>Dating App Registration</title></head>' +
-    '<body> <form method="post">' +
-    '<h1>Please fill in your login information</h1>' +
-    'Enter your username <input name="username"><br><br>'+
-    'Enter your password <input name="password"><br><br>' +
-    '<input type="submit" value="Login">' +
-    '</form>';
-
-    page+='<br><br><a href="/">Home Page</a>&emsp;&emsp;<a href="/register">Register here</a> </body></html>';
-    
-    
-    return page;
-
-}
-
+*/
 
 async function searchResp(result, response)
 {
@@ -327,6 +312,36 @@ app.post('/register', function(req, res){
 	postData+=data;
     });
     req.on('end', async ()=>{
+	console.log(postData);
+    if (moveOn(postData))
+    {
+        let result = false;
+        try
+        {
+            curUser = new User(postParams.uName, postParams.pWord, postParams.city, postParams.state, postParams.eMail);
+		    result = curUser.register();
+        } 
+        catch (err)
+        {
+            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with user creation or registration: ${err.message}`);
+            res.render('registration_result', {username: curUser.username, result: false});
+        }
+        res.render('registration_result', {username: curUser.username, result: result});
+    } 
+    else
+    {
+	    res.render('register', {incomplete: true});
+	}
+    });
+    	    
+});
+/*
+app.post('/register', function(req, res){
+    postData = '';
+    req.on('data', (data) =>{
+	postData+=data;
+    });
+    req.on('end', async ()=>{
 	//Break into functions
 	console.log(postData);
 	if (moveOn(postData)){
@@ -363,7 +378,7 @@ app.post('/register', function(req, res){
     });
     	    
 });
-
+*/
 
 app.post('/login', function(req, res){
     postData = '';
@@ -371,36 +386,20 @@ app.post('/login', function(req, res){
 	postData+=data;
     });
     req.on('end', async ()=>{
-	//Break into functions
 	console.log(postData);
 	if (moveOn(postData)){
-	    //let col = dbManager.get().collection("activities");
-	    //on the insert page
 		try{
-
-
-		    //insert the document into the db
-		  //  let result = await col.insertOne(curDoc);
-
-
-          // insert code to verify login here
-            
-            res.send(page);
-            
-
-
-
-
-
-		   // console.log(result); //log result for viewing
+            curUser = new User(postParams.uName, postParams.pWord, '', '', '');
+            result = curUser.login();
 		} catch (err){
-		    console.log(err.message);
-		    let page = regResp(null, res);
-		    res.send(page);
-		}
-	} else{ //can't move on
-	    let page =  regResp(null, res);
-	    res.send(page);
+		    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
+		    res.render('login_result', {result: false});
+        }
+        res.render('login_result', {username: curUser.username, result: result}); // RESULT is a pending promise
+    } 
+    else
+    {
+        res.render('login', {incomplete: true});
 	}
     });
     	    

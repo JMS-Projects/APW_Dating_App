@@ -1,0 +1,14 @@
+doctype html
+html(lang="en")
+    head
+        if result
+            title="Login successful"
+        else
+            title="Login failure"
+    body
+    if result
+        h2 You successfully logged in as #{username}
+    else
+        h2 Your login failed. Try again.
+    p You can go back to the home page now
+    a(href="/") Home
