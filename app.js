@@ -328,7 +328,7 @@ app.post('/register', function(req, res){
         try
         {
             curUser = new User(postParams.uName, postParams.pWord, postParams.city, postParams.state, postParams.eMail);
-		    result = curUser.register();
+		    result = await curUser.register();
         } 
         catch (err)
         {
@@ -395,7 +395,7 @@ app.post('/login', function(req, res){
 	if (moveOn(postData)){
 		try{
             curUser = new User(postParams.uName, postParams.pWord, '', '', '');
-            result = curUser.login();
+            result = await curUser.login();
 		} catch (err){
 		    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
 		    res.render('login_result', {result: false});
