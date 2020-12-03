@@ -61,22 +61,8 @@ class profile
         this.religion=religion;
 
     }
-    /*work in progress but will basically check if the
-    profile that is passed in's id is in the blocked list if it
-    is not then at the end it adds it to the list if it doesnt 
-    it will just return
-    */
-    block(profile)
-    {
-        for( num in blockedList)
-        {
-            if(profile.id == num)
-            {
-                return;
-            }
-        }
-        blockedList.insert(profile.id);
-    }
+ 
+   
     // should display the profile information
     displayProfile()
     {
