@@ -315,11 +315,11 @@ app.post('/register', function(req, res){
 	console.log(postData);
     if (moveOn(postData))
     {
-        let result = false;
+        var result = false;
         try
         {
             curUser = new User(postParams.uName, postParams.pWord, postParams.city, postParams.state, postParams.eMail);
-		    result = curUser.register();
+		    result = await curUser.register();
         } 
         catch (err)
         {
@@ -327,6 +327,7 @@ app.post('/register', function(req, res){
             res.render('registration_result', {username: curUser.username, result: false});
         }
         res.render('registration_result', {username: curUser.username, result: result});
+        
     } 
     else
     {
@@ -390,7 +391,7 @@ app.post('/login', function(req, res){
 	if (moveOn(postData)){
 		try{
             curUser = new User(postParams.uName, postParams.pWord, '', '', '');
-            result = curUser.login();
+            result = await curUser.login();
 		} catch (err){
 		    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
 		    res.render('login_result', {result: false});
