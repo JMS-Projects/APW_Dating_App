@@ -1,10 +1,12 @@
 const http = require("http");
-//const profile = require("./profile.js");
+const profile = require("./profile.js");
 const qString = require("querystring");
 const express = require("express");
 const dbManager = require('./dbManager');
 const User = require("./User.js");
 let app = express();
+
+
 
 app.set('views', './views');
 app.set('view engine', 'pug');
@@ -15,6 +17,26 @@ app.get('/', function (req, res){
     'registering an account, viewing your profile or searching profiles '+
     'of people registered.</p>'+
     '<br><br><a href="/login">login/register</a>&emsp;&emsp;<a href="/search">search Page' +
+    '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
+    '<a href="/chat">chat now!</a></body></html>');
+});
+
+app.get('/home', function (req, res){
+    res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
+    '<p>This is a Dating application below you have the option of '+
+    'registering an account, viewing your profile or searching profiles '+
+    'of people registered.</p>'+
+    '<br><br><a href="/profile">Profile</a>&emsp;&emsp;<a href="/search">search Page' +
+    '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
+    '<a href="/chat">chat now!</a></body></html>');
+});
+
+app.get('/home2', function (req, res){
+    res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
+    '<p>This is a Dating application below you have the option of '+
+    'registering an account, viewing your profile or searching profiles '+
+    'of people registered.</p>'+
+    '<br><br><a href="/rProfile">Create Profile</a>&emsp;&emsp;<a href="/search">search Page' +
     '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
     '<a href="/chat">chat now!</a></body></html>');
 });
@@ -35,6 +57,18 @@ app.get('/register', function(req, res, next){
     res.render('register');
 });
 
+app.get('/profile', function(req, res, next){
+    profileResp(null, res).then(
+    page=> {    res.send(page); }
+    ).catch(next);
+});
+
+app.get('/rProfile', function(req, res, next){
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for creating profile page`);
+    res.render('rProfile');
+});
+
+
 app.get('/match', function(req, res, next){
     matchResp(null, res).then(
     page=> {    res.send(page); }
@@ -48,6 +82,7 @@ app.get('/chat', function(req, res){
 
 
 var postParams;
+var currProfile;
 function moveOn(postData){
     let proceed = true;
     postParams = qString.parse(postData);
@@ -59,46 +94,20 @@ function moveOn(postData){
     }
     return proceed;
 }
-/*
-async function regResp(info, res){
-    let page = '<html><head><title>Dating App Registration</title></head>' +
-    '<body> <form method="post">' +
-    '<h1>Please fill in information about yourself</h1>' +
-    'Enter your Name <input name="name"><br><br>'+
-    'Enter your Age <input name="age"><br><br>' +
-    'Enter your Gender <input name="gender"><br><br>' +
-    'Enter your height in cm <input name="height"><br><br>' +
-    '<label for="race">Select the race that you most identify as</label>'+ 
-    '<select name="race" id="race">' +
-    '<option value="White">White</option>' +
-    '<option value="Black/African American">Black/African American</option>' +
-    '<option value="Asian" value= "Asian">Asian</option>' +
-    '<option value="Hispanic">Hispanic</option>' +
-    '</select><br><br>' +
-    '<label>Select the income range you fall into<name="income"></label><br><br>' +
-    '<input type = "radio" id = "less" name="income" value="less than $40,000">'+
-    '<label for="less">Less than $40,000 a year</label><br>' +
-    '<input type = "radio" id = "40,000" name="income" value="$40,000">'+
-    '<label for="40,000">Around $40,000 a year</label><br>' +
-    '<input type = "radio" id = "75,000" name="income" value="$75,000">'+
-    '<label for="75,000">Around $75,000 a year</label><br>' +
-    '<input type = "radio" id = "100,000" name="income" value="$100,000">'+
-    '<label for="100,000">Around $100,000 a year</label><br>' +
-    '<input type = "radio" id = "300,000" name="income" value="$300,000">'+
-    '<label for="300,000">Around $300,000 a year</label><br>' +
-    '<input type = "radio" id = "more" name="income" value="more than $300,000">'+
-    '<label for="more">More than $300,000 a year</label><br><br>' +
-    'Enter your religion <input name="religion"><br><br>'+
-    '<input type="submit" value="Sumbit">' +
-    '<input type="reset" value="Reset">' +
-    '</form>';
 
-    page+='<br><br><a href="/">Home Page</a></body></html>';
-    
-    return page;
+async function profileResp(info, res){
+    try{
+        let page = currProfile.displayProfile();
+        page += '<br><br><a href="/home">Home Page</a></body></html>';
+        res.send(page);
+    }
+    catch(err)
+    {
+        console.log(err.message);
 
+    }
 }
-*/
+
 
 async function searchResp(result, response)
 {
@@ -315,11 +324,11 @@ app.post('/register', function(req, res){
 	console.log(postData);
     if (moveOn(postData))
     {
-        var result = false;
+        let result = false;
         try
         {
             curUser = new User(postParams.uName, postParams.pWord, postParams.city, postParams.state, postParams.eMail);
-		    result = await curUser.register();
+		    result = curUser.register();
         } 
         catch (err)
         {
@@ -327,7 +336,6 @@ app.post('/register', function(req, res){
             res.render('registration_result', {username: curUser.username, result: false});
         }
         res.render('registration_result', {username: curUser.username, result: result});
-        
     } 
     else
     {
@@ -336,8 +344,9 @@ app.post('/register', function(req, res){
     });
     	    
 });
-/*
-app.post('/register', function(req, res){
+
+
+app.post('/rProfile', function(req, res){
     postData = '';
     req.on('data', (data) =>{
 	postData+=data;
@@ -346,13 +355,9 @@ app.post('/register', function(req, res){
 	//Break into functions
 	console.log(postData);
 	if (moveOn(postData)){
-	    //let col = dbManager.get().collection("activities");
-	    //on the insert page
 		try{
-		    //if the data is bad, object creation throws an
-		    //error (as we have seen since Week 4).
-		    //And no document will be inserted
-		    var currProfile = new profile(postParams.name,
+
+		    currProfile = new profile(postParams.name,
 						 postParams.age,
 						 postParams.gender,
                          postParams.height,
@@ -360,26 +365,25 @@ app.post('/register', function(req, res){
 						 postParams.income,
                          postParams.religion);
 
-		    //insert the document into the db
-		  //let result = await col.insertOne(curDoc);
             
             let page = currProfile.displayProfile();
-            page += '<br><br><a href="/">Home Page</a></body></html>';
+            page += '<br><br><a href="/home">Home Page</a></body></html>';
             res.send(page);
 		 // console.log(result); //log result for viewing
 		} catch (err){
 		    console.log(err.message);
-		    let page = regResp(null, res);
-		    res.send(page);
+		    //let page = rProfileResp(null, res);
+		    //res.send(page);
 		}
 	} else{ //can't move on
-	    let page =  regResp(null, res);
-	    res.send(page);
+	   // let page =  rProfileResp(null, res);
+	    //res.send(page);
 	}
     });
     	    
 });
-*/
+
+
 
 app.post('/login', function(req, res){
     postData = '';
@@ -391,7 +395,7 @@ app.post('/login', function(req, res){
 	if (moveOn(postData)){
 		try{
             curUser = new User(postParams.uName, postParams.pWord, '', '', '');
-            result = await curUser.login();
+            result = curUser.login();
 		} catch (err){
 		    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
 		    res.render('login_result', {result: false});
