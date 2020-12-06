@@ -55,6 +55,21 @@ app.get('/', function (req, res){
     '<a href="/chat">chat now!</a></body></html>');
 });
 
+app.get('/update', function(req, res, next)
+{
+    res.render('update');
+});
+app.post('/update', bp.urlencoded({extended: false}), function(req, res, next)
+{
+    let updateUser = new User({username: req.body.uName});
+    updateUser.updateProp(req.body);
+});
+app.get('/logout', function(req, res,next)
+{
+    req.session.destroy();
+    res.redirect('/');
+});
+
 app.get('/search', function(req, res, next)
 {
     if (req.session.user)

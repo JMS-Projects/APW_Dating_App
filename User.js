@@ -1,4 +1,4 @@
-const dbManager = require('./dbManager.js'); 
+const dbManager = require('./dbManager.js');
 class User
 {
 	// the args object can have the properties: username, password, city, state, email, blockList, profile, pfp_path
@@ -79,6 +79,24 @@ class User
 		console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. ${this.username} already exists in the database`);
 		return false;
 	}
+	// This function needs to get req.body from an update page
+	updateProp(inObj)
+	{
+		let updateDoc = {};
+		if (inObj.pWord.trim() != '') updateDoc.password = inObj.pWord;
+		if (inObj.eMail.trim() != '') updateDoc.email = inObj.eMail;
+		if (inObj.city.trim() != '') updateDoc.city = inObj.city;
+		if (inObj.state.trim() != '') updateDoc.state = inObj.state;
+		try
+		{
+			let col = dbManager.get().collection("users");
+			col.updateOne({username: this.username}, {$set: updateDoc});
+		}
+		catch (err)
+		{
+			console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with updating ${inObj.username}'s user information: ${err}`);
+		}
+	}
 	get Username()
 	{
 		return this.username;
@@ -134,7 +152,6 @@ class User
 	}
 	set Profile(profile)
 	{
-		//check that profile is a valid profile
 		this.profile = profile;
 	}
 	set PfP_Path(img_path)

@@ -14,7 +14,6 @@ class profile
             this.race= race;
             this.income = income;
             this.religion = religion;
-            const blockedList = [];
 
         } 
         catch (err)
