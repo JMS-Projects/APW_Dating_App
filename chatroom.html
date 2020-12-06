@@ -1,0 +1,46 @@
+<!-- Using a chat API named pubnub to create a simple chat application in an HTML page -->
+<!-- PubNub works on a channel that allows messages to be sent and obtained when subscribed-->
+
+<Title>Dating Chatroom</Title>
+<h2>Dating Chatroom, Type Below: </h2>
+
+<div><input id=input placeholder="message" autocomplete="off" /></div>
+
+<br><br><a href="/home">Home Page</a></body></html>
+
+<div id=box></div>
+<script src=https://cdn.pubnub.com/sdk/javascript/pubnub.4.28.2.min.js></script>
+<script> (function() {
+            var pubnub = new PubNub({
+            publishKey: 'pub-c-12c35420-5262-4a9c-8970-4186375bec28',
+            subscribeKey: 'sub-c-d5a3fdb2-36c1-11eb-b6eb-96faa39b9528'
+        });
+        function $(id) {
+            return document.getElementById(id);
+        }
+        //JS to enable text-box to have input and output features
+        var box = $('box'),
+            input = $('input'),
+            channel = 'send';
+            //Reacts to message event
+        pubnub.addListener({
+            message: function(obj) {
+                box.innerHTML = ('' + obj.message).replace(/[<>]/g, '') + '<br>' + box.innerHTML
+            }
+        });
+        //Enables chat to a specific channel
+        pubnub.subscribe({
+            channels: [channel]
+        });
+        //Adding an Event Listener to enable the -Enter- key for sending for messages
+        input.addEventListener('keyup', function(e) {
+            if ((e.keyCode || e.charCode) === 13) {
+                pubnub.publish({
+                    channel: channel,
+                    message: input.value,
+                    x: (input.value = '')
+                });
+            }
+        });
+    })();
+</script>

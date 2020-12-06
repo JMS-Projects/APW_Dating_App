@@ -162,15 +162,13 @@ app.get('/chat', function(req, res)
 {
     if (req.session.user)
     {
-        res.end('<html><body><title>Chat Page</title><h1>Chat</h1>'+
-        '<p>NOT YET IMPLEMENTED<p><br><br><a href="/">Home Page</a></body></html>');
+        res.sendFile(__dirname + '/chatroom.html');
     }
     else
     {
         res.redirect('/login');
     }
 });
-
 app.get('/test', function(req, res){
     res.render('test');
 })
