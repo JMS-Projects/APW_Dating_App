@@ -1,0 +1,15 @@
+doctype html
+html
+    head
+        title Pfp Upload
+    body
+        h1 Submit a profile picture
+        if msg
+            p #{msg}
+        form(action="/test/upload" method="post" enctype="multipart/form-data")
+            label(for="img")
+                | Select picture:
+            input(type="file" id="img" name="img" accept="image/*")
+            input(type="submit")
+        br
+        img(src='' + file, alt="failure")

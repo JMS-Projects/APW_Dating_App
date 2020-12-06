@@ -2,15 +2,49 @@ const http = require("http");
 const profile = require("./profile.js");
 const qString = require("querystring");
 const express = require("express");
+const session = require("express-session");
+const multer = require("multer");
+const path = require("path");
+const bp = require("body-parser");
 const dbManager = require('./dbManager');
 const User = require("./User.js");
 let app = express();
 
+const storage = multer.diskStorage({
+    destination: './profile_pictures',
+    filename: function(req, file, cb){
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+});
+const upload = multer({
+    storage: storage,
+    limits: {fields: 1, fileSize: 500000, files: 1},
+    fileFilter: function(req, file, cb){
+        const filetypes = /jpeg|jpg|png|gif/;
+        const extension = filetypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
 
+        if(mimetype && extension){
+            return cb(null, true);
+        }
+        else{
+            cb('Error: You can only submit images');
+        }
+    }
+}).single('img');
 
 app.set('views', './views');
 app.set('view engine', 'pug');
-
+app.use('/profile_pictures', express.static(path.join(__dirname, 'profile_pictures')));
+app.use(session({
+    secret: "D@Drj8m$jhZ56R01aiH2v%3#EEMZot4S9Ln3I^1h",
+    saveUninitialized: false,
+    resave: false
+}));
+app.use(function (req, res, next){
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.method} request for ${req.url} route with session ID: ${req.session.id}`);
+    next();
+})
 app.get('/', function (req, res){
     res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
     '<p>This is a Dating application below you have the option of '+
@@ -19,6 +53,20 @@ app.get('/', function (req, res){
     '<br><br><a href="/login">login/register</a>&emsp;&emsp;<a href="/search">search Page' +
     '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
     '<a href="/chat">chat now!</a></body></html>');
+});
+
+app.get('/search', function(req, res, next)
+{
+    if (req.session.user)
+    {
+        searchResp(null, res).then(
+        page=> {    res.send(page); }
+        ).catch(next);
+    }
+    else
+    {
+        res.redirect('/login');
+    }
 });
 
 app.get('/home', function (req, res){
@@ -41,22 +89,42 @@ app.get('/home2', function (req, res){
     '<a href="/chat">chat now!</a></body></html>');
 });
 
-app.get('/search', function(req, res, next){
-    searchResp(null, res).then(
-	page=> {    res.send(page); }
-    ).catch(next);
+app.get('/login', function(req, res, next)
+{
+    if (!req.session.user)
+    {
+        res.render('login');
+    }
+    else
+    {
+        res.redirect('/');
+    }
 });
 
-app.get('/login', function(req, res, next){
-    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for login page`);
-    res.render('login');
+app.get('/register', function(req, res, next)
+{
+    if (req.session.user)
+    {
+        res.redirect('/');
+    }
+    else
+    {
+       res.render('register');
+    }
 });
-
-app.get('/register', function(req, res, next){
-    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for registration page`);
-    res.render('register');
+app.get('/match', function(req, res, next)
+{
+    if (req.session.user)
+    {
+        matchResp(null, res).then(
+        page=> {    res.send(page); }
+        ).catch(next);
+    }
+    else
+    {
+        res.redirect('/login');
+    }
 });
-
 app.get('/profile', function(req, res, next){
     profileResp(null, res).then(
     page=> {    res.send(page); }
@@ -75,11 +143,22 @@ app.get('/match', function(req, res, next){
     ).catch(next);
 });
 
-app.get('/chat', function(req, res){
-    res.end('<html><body><title>Chat Page</title><h1>Chat</h1>'+
-    '<p>NOT YET IMPLEMENTED<p><br><br><a href="/">Home Page</a></body></html>');
+app.get('/chat', function(req, res)
+{
+    if (req.session.user)
+    {
+        res.end('<html><body><title>Chat Page</title><h1>Chat</h1>'+
+        '<p>NOT YET IMPLEMENTED<p><br><br><a href="/">Home Page</a></body></html>');
+    }
+    else
+    {
+        res.redirect('/login');
+    }
 });
 
+app.get('/test', function(req, res){
+    res.render('test');
+})
 
 var postParams;
 var currProfile;
@@ -315,34 +394,60 @@ app.post('/match', function(req, res){
     });
 });
 
-app.post('/register', function(req, res){
-    postData = '';
-    req.on('data', (data) =>{
-	postData+=data;
-    });
-    req.on('end', async ()=>{
-	console.log(postData);
-    if (moveOn(postData))
+app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
+{
+    try
     {
-        let result = false;
-        try
-        {
-            curUser = new User(postParams.uName, postParams.pWord, postParams.city, postParams.state, postParams.eMail);
-		    result = await curUser.register();
-        } 
-        catch (err)
-        {
-            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with user creation or registration: ${err.message}`);
-            res.render('registration_result', {username: curUser.username, result: false});
-        }
-        res.render('registration_result', {username: curUser.username, result: result});
+        curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.email});
+        let result = await curUser.register();
+        res.render('registration_result', {username: curUser.username, result: result});    
     } 
-    else
+    catch (err)
     {
-	    res.render('register', {incomplete: true});
-	}
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with user creation or registration: ${err.message}`);
+        res.render('registration_result', {username: curUser.username, result: false});
+    }
+});
+app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
+{
+    try
+    {
+        curUser = new User({username: req.body.uName, password: req.body.pWord});
+        let result = await curUser.login();
+        if (result)
+        {
+            req.session.user = {name: curUser.username};
+            app.locals.user = curUser;
+        }
+        res.render('login_result', {username: curUser.username, result: result});
+    } 
+    catch (err)
+    {
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
+        res.render('login_result', {result: false});
+    }	    
+});
+app.get('/test/upload/complete', function(req, res){
+    res.render('test', {msg: app.locals.msg, file: app.locals.file});
+});
+app.post('/test/upload', function(req, res){
+    upload(req, res, (err)=>{
+        if(err){
+            app.locals.msg = err;
+            res.redirect('/test/upload/complete');
+        }
+    
+        if(req.file == undefined){
+            app.locals.msg = 'Error: No file selected';
+            res.redirect('/test/upload/complete');
+        }
+        else{
+            app.locals.msg = 'File uploaded';
+            app.locals.file = `/profile_pictures/${req.file.filename}`;
+            res.redirect('/test/upload/complete');
+        }
+        
     });
-    	    
 });
 
 
@@ -383,47 +488,22 @@ app.post('/rProfile', function(req, res){
     	    
 });
 
-
-
-app.post('/login', function(req, res){
-    postData = '';
-    req.on('data', (data) =>{
-	postData+=data;
-    });
-    req.on('end', async ()=>{
-	console.log(postData);
-	if (moveOn(postData)){
-		try{
-            curUser = new User(postParams.uName, postParams.pWord, '', '', '');
-            result = await curUser.login();
-		} catch (err){
-		    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
-		    res.render('login_result', {result: false});
-        }
-        res.render('login_result', {username: curUser.username, result: result}); // RESULT is a pending promise
-    } 
-    else
-    {
-        res.render('login', {incomplete: true});
-	}
-    });
-    	    
-});
-
-
 app.use('*', function(req, res){
     res.writeHead(404);
     res.end(`<h1> ERROR 404. ${req.url} NOT FOUND</h1><br><br>`);
 });
 
 
-app.listen(6900, async ()=> {
+app.listen(6900, async ()=> 
+{
     //start and wait for the DB connection
-   try{
-        await dbManager.get("datingApp");
-    } catch (e){
+   try
+    {
+        await dbManager.get("datingApp");     
+    } 
+    catch (e)
+    {
         console.log(e.message);
     }
-
     console.log("Server is running...");
 });

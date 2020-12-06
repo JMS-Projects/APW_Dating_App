@@ -1,22 +1,23 @@
 const dbManager = require('./dbManager.js'); 
 class User
 {
-	constructor(username, password, city, state, email) 
+	// the args object can have the properties: username, password, city, state, email, blockList, profile, pfp_path
+	constructor(args = {}) 
 	{
-		this.username = username.trim();
-		this.password = password.trim();
-		this.city = city.toLocaleUpperCase().trim();
-		this.state = state.toLocaleUpperCase().trim();
-		this.email = email.trim();
-		this.blockList = [];
-		this.profile = {};
-		// this.profile_picture = path_to_image;
+		if (args.username)	this.username = args.username.trim();
+		if (args.password)	this.password = args.password.trim();
+		if (args.city)		this.city = args.city.toLocaleUpperCase().trim();
+		if (args.state)		this.state = args.state.toLocaleUpperCase().trim();
+		if (args.email)		this.email = args.email.trim();
+		if (args.blockList)	this.blockList = args.blockList;
+		if (args.profile)	this.profile = args.profile;
+		if (args.pfp_path)  this.profile_picture_path = args.pfp_path;
 	}
 	// placeholder for update() function, which updates the object in MongoDB
 
     unblock(username)
     {
-		let temp = this.blockList.indexOf(username.trim());// test this function to see if the if statement will run before assignment finishes
+		let temp = this.blockList.indexOf(username.trim());
 		if (temp > -1)
 		{
 			console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${this.username} unblocked ${username}`);
@@ -106,10 +107,10 @@ class User
 	{
 		return this.blockList;
 	}
-	// getProfilePicture()
-	// {
-	// 	return path_to_image;
-	// }
+	get PfP_Path()
+	{
+		return this.pfp_path
+	}
 
 	set Username(username)
 	{
@@ -136,10 +137,10 @@ class User
 		//check that profile is a valid profile
 		this.profile = profile;
 	}
-	// setProfilePicture()
-	// {
-	// 	this.profile_picture = path_to_image;
-	// }
+	set PfP_Path(img_path)
+	{
+		this.pfp_path = img_path;
+	}
 }
 
 module.exports = User;
