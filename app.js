@@ -158,17 +158,11 @@ app.get('/match', function(req, res, next){
     ).catch(next);
 });
 
-app.get('/chat', function(req, res)
-{
-    if (req.session.user)
-    {
-        res.sendFile(__dirname + '/chatroom.html');
-    }
-    else
-    {
-        res.redirect('/login');
-    }
-});
+
+var htmlPath = path.join(__dirname, 'html');
+app.use('/chat', express.static(htmlPath));
+
+
 app.get('/test', function(req, res){
     res.render('test');
 })

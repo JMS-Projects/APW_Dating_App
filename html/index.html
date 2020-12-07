@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+	<!--Implementing PubNub and Cloudfare library for use -->
+	<title>Dating Chat Nickname</title>
+	<script src="http://cdn.pubnub.com/pubnub.min.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	
+	
+<body>
+	<h1 class="welcome"> Welcome To The Dating Chat</h1>
+	<input id="userName" type="text" placeholder="Enter Anonymous Nickname" class="userNameBar" onkeydown="keyDown(event)" />
+	<button id="joinButton" class="btn btn-primary joinButton" onclick="joinRoom()">Join</button>
+	<br><br><a href="/home">Home Page</a></body></html>
+
+	<script type="text/javascript">
+	//Add js to join button to allow user to be redirected to the chatroom
+		function joinRoom() { debugger;
+			var uuid = $('#userName').val();
+			window.location = 'ChatRoom.html?uuid=' + uuid;
+
+	}
+
+	//Disables User from pressing the space bar when creating user name
+	function keyDown(e) { 
+  		var e = window.event || e;
+  		var key = e.keyCode;
+   		if (key == 32) { 
+    		e.preventDefault();
+   }
+        
+}
+	
+	</script>
+</body>
+</html>
