@@ -167,6 +167,12 @@ app.get('/test', function(req, res){
     res.render('test');
 })
 
+app.get('/editPr', function(req, res, next){
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request to edit profile page`);
+    res.render('editPr', {profile: currProfile});
+});
+
+
 var postParams;
 var currProfile;
 function moveOn(postData){
@@ -183,8 +189,9 @@ function moveOn(postData){
 
 async function profileResp(info, res){
     try{
+        
         let page = currProfile.displayProfile();
-        page += '<br><br><a href="/home">Home Page</a></body></html>';
+        page += '<br><br><a href="/home">Home Page</a><br><a href="/editPr">Edit profile</a></body></html>';
         res.send(page);
     }
     catch(err)
@@ -492,6 +499,43 @@ app.post('/rProfile', function(req, res){
     });
     	    
 });
+
+app.post('/editPr', function(req, res){
+    postData = '';
+    req.on('data', (data) =>{
+	postData+=data;
+    });
+    req.on('end', async ()=>{
+	//Break into functions
+	console.log(postData);
+	if (moveOn(postData)){
+		try{
+
+		    currProfile = await new profile(postParams.name,
+						 postParams.age,
+						 postParams.gender,
+                         postParams.height,
+                         postParams.race,
+						 postParams.income,
+                         postParams.religion);
+
+            
+            
+            res.redirect('/home');
+		 // console.log(result); //log result for viewing
+		} catch (err){
+		    console.log(err.message);
+		    //let page = rProfileResp(null, res);
+		    //res.send(page);
+		}
+	} else{ //can't move on
+	   // let page =  rProfileResp(null, res);
+	    //res.send(page);
+	}
+    });
+    	    
+});
+
 
 app.use('*', function(req, res){
     res.writeHead(404);
