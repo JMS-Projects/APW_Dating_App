@@ -238,16 +238,18 @@ async function matchResp(result, response){
     'Prefered Gender:'+
         '<select name="gender" size="1">'+
         '<option value="n" selected="selected"> No Preference </option>'+
-        '<option value="m"> Male </option>'+
-        '<option value="F"> Female </option>'+
-        '<option value="o"> Other </option>'+
+        '<option value="Male"> Male </option>'+
+        '<option value="Female"> Female </option>'+
+        '<option value="Other"> Other </option>'+
         '</select> <br>'+
     'Prefered Race:'+
         '<select name="race" size="1">'+
         '<option value="n" selected="selected"> No Preference </option>'+
         '<option value="White"> White </option>'+
-        '<option value="black"> Black </option>'+
-        '<option value="asian"> Asian </option>'+
+        '<option value="Black/African American"> Black/African American </option>'+
+        '<option value="Asian"> Asian </option>'+
+        '<option value="Hispanic"> Hispanic </option>'+
+        '<option value="Other"> Other </option>'+
         '</select> <br>'+
     'Prefered Age Range: '+
         'min<input type="number" name="minAge" min="18" max="100" step="1"> '+
@@ -258,10 +260,12 @@ async function matchResp(result, response){
     'Prefered Religion:'+
         '<select name="religion" size="1">'+
         '<option value="n" selected="selected"> No Preference </option>'+
-        '<option value="None"> None </option>'+
-        '<option value="catholic"> Catholic </option>'+
-        '<option value="muslim"> Muslim </option>'+
-        '<option value="jewish"> Jewish </option>'+
+        '<option value="Christianity"> Christianity </option>'+
+        '<option value="Islam"> Islam </option>'+
+        '<option value="Hinduism"> Hinduism </option>'+
+        '<option value="Buddhism"> Buddhism </option>'+
+        '<option value="Other"> Other </option>'+
+        '<option value="Not religious"> Not religious </option>'+
         '</select> <br>'+
     '<input type="submit" value="Search!">' +
     '<input type="reset" value="Clear">'+
@@ -273,7 +277,7 @@ async function matchResp(result, response){
         //the await must be wrapped in a try/catch in case the promise rejects
         try{
         await result.data.forEach((item) =>{
-            page+=`Match ${++count}: ${item.name} age ${item.age} hobbies include: ${item.hobbies} <button>Chat Now!</button><br>`;
+            page+=`Match ${++count}: ${item.profile.name} age ${item.profile.age} <button onclick="window.location.href='/chat';">Chat Now!</button><br>`;
             });
         } catch (e){
             page+=e.message;
@@ -333,70 +337,64 @@ app.post('/match', function(req, res){
     req.on('end', async ()=>{
         //Break into functions
         console.log(postData);
-        if (moveOn(postData)){
-            let col = dbManager.get().collection("profiles");
-            var prop= postParams.prop;
-            var val = postParams.value;
-            var gender;
-            var race;
-            var age;
-            var height;
-            var religion;
+        postParams = qString.parse(postData);
 
-            if (postParams.gender == 'n'){
-                gender = {$exists: true};
-            } else {
-                gender = postParams.gender;
-            }
+        let col = dbManager.get().collection("users");
+        var prop= postParams.prop;
+        var val = postParams.value;
+        var gender;
+        var race;
+        var age;
+        var height;
+        var religion;
 
-            if (postParams.race == 'n'){
-                race = {$exists: true};
-            } else {
-                race = postParams.race;
-            }
+        if (postParams.gender == 'n'){
+            gender = {$exists: true};
+        } else {
+            gender = postParams.gender;
+        }
 
-            if (postParams.minAge != '' && postParams.maxAge != ''){
-                console.log("Min age = ", postParams.minAge);
-                console.log("Max age = ", postParams.maxAge);
-                age = {$gte: Number(postParams.minAge), $lte: Number(postParams.maxAge)};
-            } else {
-                age = {$exists: true};
-            }
+        if (postParams.race == 'n'){
+            race = {$exists: true};
+        } else {
+            race = postParams.race;
+        }
 
-            if (postParams.minHeight != '' && postParams.maxHeight != '') {
-                height = {$gte: Number(postParams.minHeight), $lte: Number(postParams.maxHeight)};
-            } else {
-                height = {$exists: true};
-            }
+        if (postParams.minAge != '' && postParams.maxAge != ''){
+            age = {$gte: Number(postParams.minAge), $lte: Number(postParams.maxAge)};
+        } else {
+            age = {$exists: true};
+        }
 
-            if (postParams.religion == 'n'){
-                religion = {$exists: true};
-            } else {
-                religion = postParams.religion;
-            }
+        if (postParams.minHeight != '' && postParams.maxHeight != '') {
+            height = {$gte: Number(postParams.minHeight), $lte: Number(postParams.maxHeight)};
+        } else {
+            height = {$exists: true};
+        }
 
-            //simple equality search. using [] allows a variable
-            //in the property name
-            let searchDoc = { "gender": gender, "race": race, "age": age, 
-                "height": height, "religion": religion};
+        if (postParams.religion == 'n'){
+            religion = {$exists: true};
+        } else {
+            religion = postParams.religion;
+        }
 
-            try{
-                let cursor = col.find(searchDoc);
-                let resultOBJ={data: cursor, [prop]  : val, prop: prop};
-        
-                matchResp(resultOBJ, res).then( page =>
-                                {res.send(page)
-                                });//call the matchPage
-            } catch (e){
-                console.log(e.message);
-                res.writeHead(404);
-                res.write("<html><body><h1> ERROR 404. Page NOT FOUND</h1>");
-                res.end("<br>" + e.message + "<br></body></html>");
-            }
-        } else{ // can't move on
-            matchResp(null, res).then(
-            page => {res.send(page)}
-        );
+        //simple equality search. using [] allows a variable
+        //in the property name
+        let searchDoc = { "profile.gender": gender, "profile.race": race, "profile.age": age, 
+            "profile.height": height, "profile.religion": religion};
+
+        try{
+            let cursor = col.find(searchDoc);
+            let resultOBJ={data: cursor, [prop]  : val, prop: prop};
+    
+            matchResp(resultOBJ, res).then( page =>
+                            {res.send(page)
+                            });//call the matchPage
+        } catch (e){
+            console.log(e.message);
+            res.writeHead(404);
+            res.write("<html><body><h1> ERROR 404. Page NOT FOUND</h1>");
+            res.end("<br>" + e.message + "<br></body></html>");
         }
     });
 });
