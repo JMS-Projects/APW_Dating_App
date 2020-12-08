@@ -208,11 +208,16 @@ async function searchResp(result, response)
     '<body> <form method="post">'+
     '<h1>Search for a profile</h1>'+
     'Property <select name="prop">'+
-    '<option>Name</option>' +
-    '<option>Age</option>' +
-    '<option>Race</option>' +
-    '<option>Religion</option>' +
+    '<option>username</option>' +
+    '<option>city</option>' +
+    '<option>state</option>' +
+    '<option>name</option>' +
+    '<option>age</option>' +
     '<option>gender</option>' +
+    '<option>height</option>' +
+    '<option>race</option>' +
+    '<option>income</option>' +
+    '<option>religion</option>' +
     '</select>'+
     '  <input name="value">'+
     '<input type="submit" value="Search!">' +
@@ -225,13 +230,13 @@ async function searchResp(result, response)
         let count = 0;
         //the await must be wrapped in a try/catch in case the promise rejects
         try{
-        await result.data.forEach((item) =>{
-            page+=`Match ${++count} ${item.name} <br>`;
-            });
-        } catch (e){
-            page+=e.message;
-            throw e;
-        }
+            await result.data.forEach((item) =>{
+                page+=`Match ${++count}: ${item.profile.name}  <br>`;
+                });
+            } catch (e){
+                page+=e.message;
+                throw e;
+            }
     }
     page+='<br><br><a href="/">Home Page</a></body></html>';
       
@@ -306,15 +311,17 @@ app.post('/search', function(req, res){
         //Break into functions
         console.log(postData);
         if (moveOn(postData)){
-            let col = dbManager.get().collection("profiles");
+            let col = dbManager.get().collection("users");
             var prop= postParams.prop;
             var val = postParams.value;
-            if (prop == "age" || prop == "height"){
-                val = Number(postParams.value);
+            let searchDoc;
+
+            if (prop == "username" || prop == "city" || prop == "state"){
+                searchDoc = { [prop] : val };
+            } else {
+                searchDoc = { [`profile.${prop}`] : val };
             }
-            //simple equality search. using [] allows a variable
-            //in the property name
-            let searchDoc = { [prop] : val };
+            
             try{
             let cursor = col.find(searchDoc);
             let resultOBJ={data: cursor, [prop]  : val, prop: prop};
