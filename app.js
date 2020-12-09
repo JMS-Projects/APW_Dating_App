@@ -140,7 +140,8 @@ app.get('/login', function(req, res, next)
 {
     if (!req.session.user)
     {
-        res.render('login');
+        let entry = {uName: '', pWord: ''};
+        res.render('login', {entry: entry});
     }
     else
     {
@@ -156,7 +157,8 @@ app.get('/register', function(req, res, next)
     }
     else
     {
-       res.render('register');
+        let entry = {uName: '', pWord: '', city: '', state: '', eMail: ''};
+        res.render('register', {entry: entry})
     }
 });
 app.get('/match', function(req, res, next)
@@ -452,7 +454,7 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
         if (req.body[prop] === '')
         {
             let msg = "You need to fill out all fields"
-            res.render('register', {msg: msg, body: req.body});
+            res.render('register', {msg: msg, entry: req.body});
         }
     }
     try
@@ -475,21 +477,22 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
 			{
                 console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. Mongo failed to insert ${curUser.username} into the database`);
                 let msg = "There was an error with inserting your account into the database";
-                res.render('register', {msg: msg});
+                res.render('register', {entry: req.body, msg: msg});
 			}
         }
         else
         {
             console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. ${curUser.username} already exists in the database`);
             let msg = "That username already exists."
-            res.render('register', {msg: msg});
+            res.render('register', {entry: req.body, msg: msg});
 
         }
     } 
     catch (err)
     {
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with user creation or registration: ${err.message}`);
-        res.render('registration_result', {username: req.body.username, result: false});
+        let msg = "There was an error with your registration";
+        res.render('register', {entry: req.body, msg: msg});
     }
 });
 app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
@@ -504,7 +507,6 @@ app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
     
     try
     {
-        // let result = await func.login({username: req.body.uName, password: req.body.pWord});
 		const userObj = await dbManager.get().collection("users").findOne({username: req.body.uName});
 		if (userObj != null)
 		{
@@ -516,17 +518,12 @@ app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
                 // render home page with login success message
                 // let msg = `You logged in successfully as ${req.session.user.username}`
                 // res.render('/', {msg:msg})
-			}
+            }
         }
-        else
-        {
-            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${req.body.username}`);
-            res.end();
-            // render login page with error message
-            // let msg = "You failed to log in"
-            // res.render('/login', {msg:msg})
-        }
-
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${req.body.uName}`);
+        let msg = "You failed to log in"
+        let entry = {uName: req.body.uName, pWord: req.body.pWord};
+        res.render('login', {entry: entry, msg: msg});
     } 
     catch (err)
     {

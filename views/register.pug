@@ -14,35 +14,36 @@ html(lang="en")
                     td
                         | Username:
                     td
-                        input(type="text" id="uName" name="uName" value="test")
+                        input(type="text" id="uName" name="uName" value= '' + entry.uName)
 
                 tr
                     td
                         | Password:
                     td
-                        input(type="password" id="pWord" name="pWord")
+                        input(type="password" id="pWord" name="pWord" value= '' + entry.pWord)
 
                 tr
                     td
                         | Email:
                     td
-                        input(type="text" id="eMail" name="eMail")
+                        input(type="text" id="eMail" name="eMail" value= '' + entry.eMail)
 
                 tr
                     td
                         | City:
                     td
-                        input(type="text" id="city" name="city")
+                        input(type="text" id="city" name="city" value= '' + entry.city)
 
                 tr
                     td
                         | State:
                     td
-                        input(type="text" id="state" name="state")
+                        input(type="text" id="state" name="state" value= '' + entry.state)
                 tr
                     td
                         input(type="submit" value="Register" method="post")
                     td
                         input(type="reset" value="Clear")
+
 
 
