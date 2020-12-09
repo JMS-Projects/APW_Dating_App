@@ -4,6 +4,8 @@ html(lang="en")
         title="Registration"
     body
     h1 Register
+    if msg
+        h3 #{msg}
     form(action="/register" method="post")
         fieldset(style="display: inline-block")
             legend Fill out to register
@@ -12,7 +14,7 @@ html(lang="en")
                     td
                         | Username:
                     td
-                        input(type="text" id="uName" name="uName")
+                        input(type="text" id="uName" name="uName" value="test")
 
                 tr
                     td
@@ -42,8 +44,5 @@ html(lang="en")
                         input(type="submit" value="Register" method="post")
                     td
                         input(type="reset" value="Clear")
-    if incomplete
-        h2 You need to fill out all the fields
-            
 
 

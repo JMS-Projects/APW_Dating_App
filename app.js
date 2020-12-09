@@ -10,6 +10,7 @@ const dbManager = require('./dbManager');
 const User = require("./User.js");
 let app = express();
 
+
 const storage = multer.diskStorage({
     destination: './profile_pictures',
     filename: function(req, file, cb){
@@ -72,8 +73,28 @@ app.get('/update', function(req, res, next)
 });
 app.post('/update', bp.urlencoded({extended: false}), function(req, res, next)
 {
-    let updateUser = new User({username: req.body.uName});
-    updateUser.updateProp(req.body);
+    let updateDoc = {};
+    if (req.body.pWord.trim() != '') updateDoc.password = req.body.pWord.trim();
+    if (req.body.eMail.trim() != '') updateDoc.email = req.body.eMail.trim();
+    if (req.body.city.trim() != '') updateDoc.city = req.body.city.trim();
+    if (req.body.state.trim() != '') updateDoc.state = req.body.state.trim();
+    try
+    {
+        dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: updateDoc});
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s account information has been updated`);
+        res.end();
+        // render the page again with a success message and the new account info
+        // let msg = "Your account information has been updated"
+        // res.render('/update', {msg: msg})
+    }
+    catch (err)
+    {
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with updating ${req.session.user.username}'s account information: ${err}`);
+        res.end();
+        // render page again with error message
+        // let msg = "There was an error with updating your account information"
+        // res.render('/update', {msg:msg})
+    }
 });
 app.get('/logout', function(req, res,next)
 {
@@ -426,35 +447,94 @@ app.post('/match', function(req, res){
 
 app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
 {
+    for (prop in req.body)
+    {
+        if (req.body[prop] === '')
+        {
+            let msg = "You need to fill out all fields"
+            res.render('register', {msg: msg, body: req.body});
+        }
+    }
     try
     {
-        curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.email});
-        let result = await curUser.register();
-        res.render('registration_result', {username: curUser.username, result: result});
+        let curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.email})
+		const userObj = await dbManager.get().collection("users").findOne({username: curUser.username});
+		if(userObj == null)
+		{
+			let result = await dbManager.get().collection("users").insertOne(curUser);
+			if(result.insertedCount == 1)
+			{
+                console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${curUser.username} has been registered`);
+                req.session.user = curUser;
+                res.redirect('/')
+                // render home page with success message
+                // let msg = `You have successfully registered as ${curUser.username}`
+                // res.render('/', {msg:msg})
+			}
+			else
+			{
+                console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. Mongo failed to insert ${curUser.username} into the database`);
+                let msg = "There was an error with inserting your account into the database";
+                res.render('register', {msg: msg});
+			}
+        }
+        else
+        {
+            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. ${curUser.username} already exists in the database`);
+            let msg = "That username already exists."
+            res.render('register', {msg: msg});
+
+        }
     } 
     catch (err)
     {
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with user creation or registration: ${err.message}`);
-        res.render('registration_result', {username: curUser.username, result: false});
+        res.render('registration_result', {username: req.body.username, result: false});
     }
 });
 app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
 {
+    for (prop in req.body)
+    {
+        if (req.body[prop] === '')
+        {
+            res.render('login', {msg: "fill out everything"});
+        }
+    }
+    
     try
     {
-        curUser = new User({username: req.body.uName, password: req.body.pWord});
-        let result = await curUser.login();
-        if (result)
-        {
-            userObj = await dbManager.get().collection("users").findOne({username: curUser.username});
-            req.session.user = userObj;
+        // let result = await func.login({username: req.body.uName, password: req.body.pWord});
+		const userObj = await dbManager.get().collection("users").findOne({username: req.body.uName});
+		if (userObj != null)
+		{
+			if (userObj.password === req.body.pWord)
+			{
+				console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${userObj.username} logged in successfully`);
+                req.session.user = userObj;
+                res.end();
+                // render home page with login success message
+                // let msg = `You logged in successfully as ${req.session.user.username}`
+                // res.render('/', {msg:msg})
+			}
         }
-        res.render('login_result', {username: curUser.username, result: result});
+        else
+        {
+            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${req.body.username}`);
+            res.end();
+            // render login page with error message
+            // let msg = "You failed to log in"
+            // res.render('/login', {msg:msg})
+        }
+
     } 
     catch (err)
     {
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
-        res.render('login_result', {result: false});
+        res.end();
+        // render login page with error message
+        // let msg = "You failed to log in"
+        // res.render('/login', {msg:msg})
     }	    
 });
 app.get('/test/upload/complete', function(req, res){

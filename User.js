@@ -42,60 +42,6 @@ class User
 			this.blockList.push(username.trim());
 		}	
     }
-	async login()
-	{
-		let col = dbManager.get().collection("users");
-		const userObj = await col.findOne({username: this.username});
-		if (userObj != null)
-		{
-			if (userObj.password == this.password)
-			{
-				console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${this.username} logged in successfully`);
-				return true;
-			}
-		}
-		console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${this.username}`);
-		return false;
-	}
-	async register()
-	{
-		let col = dbManager.get().collection("users");
-		const userObj = await col.findOne({username: this.username});
-		if(userObj == null)
-		{
-			let result = await col.insertOne(this);
-			if(result.insertedCount == 1)
-			{
-				console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${this.username} has been registered`);
-				return true;
-			}
-			else
-			{
-				console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. Mongo failed to insert ${this.username} into the database`);
-				return false;
-			}
-		}
-		console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. ${this.username} already exists in the database`);
-		return false;
-	}
-	// This function needs to get req.body from an update page
-	updateProp(inObj)
-	{
-		let updateDoc = {};
-		if (inObj.pWord.trim() != '') updateDoc.password = inObj.pWord.trim();
-		if (inObj.eMail.trim() != '') updateDoc.email = inObj.eMail.trim();
-		if (inObj.city.trim() != '') updateDoc.city = inObj.city.trim();
-		if (inObj.state.trim() != '') updateDoc.state = inObj.state.trim();
-		try
-		{
-			let col = dbManager.get().collection("users");
-			col.updateOne({username: this.username}, {$set: updateDoc});
-		}
-		catch (err)
-		{
-			console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with updating ${inObj.username}'s user information: ${err}`);
-		}
-	}
 	get Username()
 	{
 		return this.username;
