@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+
+<head>
+	<!--Implementing PubNub and Cloudfare library for use -->
+	<title>Dating App Console</title>
+	<script src="http://cdn.pubnub.com/pubnub.min.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+
+<body>
+	<button class="btn btn-primary updateButton" onclick="updateChannelState()">Update Channel State</button>
+	<div id="channelStateBar" class="channelState"></div>
+	<script type="text/javascript">
+	//Creating PubNub key to allow me to use their library
+		(function() {
+			var publish_key = 'pub-c-39594782-c4b0-4fb3-80fe-74e262353bf6';
+			var subscribe_key = 'sub-c-7ae61028-e9dd-11e3-92e7-02ee2ddab7fe';
+
+			pubnub =PUBNUB.init({
+				publish_key : publish_key,
+				subscribe_key : subscribe_key,
+			});
+		})();
+	</script>
+	
+	<!--Update bar to show when users leave and join-->
+	<script type="text/javascript">
+		function updateChannelState() {
+		pubnub.here_now({
+			channel : 'ChatRoom',
+			callback : function(m){ debugger;
+			    $('#channelStateBar')[0].innerHTML = 
+			    'Ocuupancy : ' + m.occupancy + '<br/><br/>' + 'uuids : ' + m.uuids;
+			    }
+			});
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!-- Using a chat API named pubnub to create a simple chat application in an HTML page with less code -->
+<!-- PubNub works on a channel that allows messages to be sent and obtained when subscribed-->
+
+<!doctype html>
+<html>
+<head>
+	<title>Dating Chat Room</title>
+	<script src="http://cdn.pubnub.com/pubnub.min.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+	<h2>Dating Chat Room</h2>
+	<h3><u>Users Online:</u></h3>
+
+
+	<div id="userList" class="table-bordered userList" ></div>
+	<button id="leaveButton" class="btn btn-danger leaveButton" onclick="leave()">Leave</button>
+	<div id="chatHistory" class="table-bordered chatHistory"></div>
+	<input type="text" id="message" placeholder="Enter your message here" class="message" autocomplete="off"/>
+	<button id="sendButton" class="btn btn-primary sendButton">Send</button>
+
+	<script type="text/javascript">
+	//Creating PubNub key to allow me to use their library
+		(function() { 
+			var publish_key = 'pub-c-39594782-c4b0-4fb3-80fe-74e262353bf6';
+			var subscribe_key = 'sub-c-7ae61028-e9dd-11e3-92e7-02ee2ddab7fe';
+			channel = 'ChatRoom';
+			var username = window.location.search.substring(1).split('=')[1];
+			pubnub =PUBNUB.init({
+				publish_key : publish_key,
+				subscribe_key : subscribe_key,
+				uuid : username
+			});
+
+			pubnub.subscribe({
+				channel : channel,
+				callback : function(message) { 
+					$('#chatHistory')[0].innerHTML = message + '<br/>' + $('#chatHistory')[0].innerHTML; 
+				},
+				//Adds username to the users who are in the chat
+				presence : function(state) { 
+					if (state.action == 'join') {
+						if ($('#userList').text().indexOf(state.uuid) == -1) {
+							$('#userList')[0].innerHTML = state.uuid + '<br/>' + $('#userList')[0].innerHTML;
+						}
+				//Removes username from the chat if user leaves
+					} else if (state.action == 'leave' || state.action == 'timeout') { 
+						var index = $('#userList')[0].innerHTML.indexOf(state.uuid);
+						if ( index !== -1) {
+							$('#userList')[0].innerHTML = 
+								$('#userList')[0].innerHTML.substring(0,index) + 
+								$('#userList')[0].innerHTML.substring(index+state.uuid.length+4);
+						}
+					}
+					
+				}
+			});
+
+		//Allows users message to output to the channel
+			pubnub.bind('click', pubnub.$('sendButton'), function(e) { 
+				pubnub.publish({
+					channel : channel, 
+					message : pubnub.get_uuid() + ' : '  + $('#message').val()
+				});
+				$('#message').val('');
+			});
+		})();
+	</script>
+
+	<!--Redirects user to index page (login) when they leave-->
+	<script type="text/javascript">
+		function leave() { 
+			pubnub.unsubscribe({
+				channel : channel,
+				callback : function() {
+					window.location = 'index.html';
+				}
+			});
+		}
+	</script>
+</body>
+</html>
