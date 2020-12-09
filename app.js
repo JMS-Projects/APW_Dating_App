@@ -235,7 +235,7 @@ async function profileResp(info, res){
     }
 }
 
-
+// Ryan Morgan,
 async function searchResp(result, response)
 {
     let page = '<html><head><title>Dating App Search</title></head>'+
@@ -265,7 +265,7 @@ async function searchResp(result, response)
         //the await must be wrapped in a try/catch in case the promise rejects
         try{
             await result.data.forEach((item) =>{
-                page+=`Match ${++count}: ${item.profile.name}  <br>`;
+                page+=`Match ${++count}: ${item.username}  <br>`;
                 });
             } catch (e){
                 page+=e.message;
@@ -277,10 +277,36 @@ async function searchResp(result, response)
     return page;
 }
 
+// Ryan Morgan,
 async function matchResp(result, response){
-    let page = '<html><head><title>Dating Match Page</title></head>'+
+    let page = '<html><head><title>Dating Match Page</title>'+
+    '<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">'+
+    //'<link rel="stylesheet" href="/resources/demos/style.css">'+
+    '<script src="https://code.jquery.com/jquery-1.12.4.js"></script>' + 
+    '<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>' + 
+    '<script>' +
+    'var min;'+
+    'var max;'+
+    '$( function() {'+
+    '   $( "#slider-range" ).slider({'+
+    '       range: true, min: 18, max: 100, values: [ 18, 24 ], slide: function( event, ui ) {'+
+    '           $("#amount").val(ui.values[0] + " - " + ui.values[ 1 ] );'+
+    '           min = ui.values[0];'+
+    '           max = ui.values[1];'+
+    '       }'+
+    '   });'+
+    '   $("#amount").val( "$" + $( "#slider-range").slider("values", 0 ) + '+
+    '       " - $" + $("#slider-range").slider("values", 1 ) );'+
+    '   min = $("#slider-range").slider("values", 0);'+
+    '   max = $("#slider-range").slider("values", 1);'+
+    '   console.log(min, max);'+
+    '});'+
+    '</script>'+
+    '</head>'+
     '<body> <form method="post">'+
     '<h1>Fill out the following information to make a match</h1>'+
+    '<div id="slider-range" style="width:200px; float:left;"></div>'+
+    '  <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;"><br>'+
     'Prefered Gender:'+
         '<select name="gender" size="1">'+
         '<option value="n" selected="selected"> No Preference </option>'+
@@ -298,7 +324,7 @@ async function matchResp(result, response){
         '<option value="Other"> Other </option>'+
         '</select> <br>'+
     'Prefered Age Range: '+
-        'min<input type="number" name="minAge" min="18" max="100" step="1"> '+
+        'min<input type="number" name="minAge" value=$(#slider-range).slider({$("#minAge").val(ui.values[0]);})> '+
         'max<input type="number" name="maxAge" min="18" max="100" step="1"> <br>'+
     'Prefered Height Range in cm: '+
         'min<input type="number" name="minHeight" min="0" max="500" step="1"> '+
@@ -313,6 +339,7 @@ async function matchResp(result, response){
         '<option value="Other"> Other </option>'+
         '<option value="Not religious"> Not religious </option>'+
         '</select> <br>'+
+    '<script>console.log(min, max);</script>'+
     '<input type="submit" value="Search!">' +
     '<input type="reset" value="Clear">'+
     '</form>';
@@ -335,6 +362,7 @@ async function matchResp(result, response){
     return page;
 }
 
+// Ryan Morgan,
 var postData;
 app.post('/search', function(req, res){
     postData = '';
@@ -350,10 +378,17 @@ app.post('/search', function(req, res){
             var val = postParams.value;
             let searchDoc;
 
+            let test;
+
             if (prop == "username" || prop == "city" || prop == "state"){
-                searchDoc = { [prop] : val };
+                test = new RegExp(`^${val}+`)
+                console.log ("The value in test is: ", test);
+                searchDoc = { [`${prop}`] : test};
+                console.log("The searchDoc is: ", searchDoc)
             } else {
-                searchDoc = { [`profile.${prop}`] : val };
+            test = `{$regex: /${val}*/}`
+            
+            searchDoc = { [`profile.${prop}`] : test};
             }
             
             try{
@@ -377,6 +412,7 @@ app.post('/search', function(req, res){
     });
 });
 
+// Ryan Morgan,
 app.post('/match', function(req, res){
     postData = '';
     req.on('data', (data) =>{
