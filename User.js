@@ -13,7 +13,6 @@ class User
 		if (args.profile)	this.profile = args.profile;
 		if (args.pfp_path)  this.profile_picture_path = args.pfp_path;
 	}
-	// placeholder for update() function, which updates the object in MongoDB
 
     unblock(username)
     {
@@ -83,10 +82,10 @@ class User
 	updateProp(inObj)
 	{
 		let updateDoc = {};
-		if (inObj.pWord.trim() != '') updateDoc.password = inObj.pWord;
-		if (inObj.eMail.trim() != '') updateDoc.email = inObj.eMail;
-		if (inObj.city.trim() != '') updateDoc.city = inObj.city;
-		if (inObj.state.trim() != '') updateDoc.state = inObj.state;
+		if (inObj.pWord.trim() != '') updateDoc.password = inObj.pWord.trim();
+		if (inObj.eMail.trim() != '') updateDoc.email = inObj.eMail.trim();
+		if (inObj.city.trim() != '') updateDoc.city = inObj.city.trim();
+		if (inObj.state.trim() != '') updateDoc.state = inObj.state.trim();
 		try
 		{
 			let col = dbManager.get().collection("users");

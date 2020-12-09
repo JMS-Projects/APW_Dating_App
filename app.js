@@ -39,10 +39,21 @@ app.use('/profile_pictures', express.static(path.join(__dirname, 'profile_pictur
 app.use(session({
     secret: "D@Drj8m$jhZ56R01aiH2v%3#EEMZot4S9Ln3I^1h",
     saveUninitialized: false,
-    resave: false
+    resave: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 1 // sessions expire after 1 hour
+    }
 }));
+
 app.use(function (req, res, next){
-    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.method} request for ${req.url} route with session ID: ${req.session.id}`);
+    if(!req.session.user)
+    {
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.method} request for ${req.url} route from guest user`);
+    }
+    else
+    {
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.method} request for ${req.url} route from ${req.session.user.username}`);
+    }
     next();
 })
 app.get('/', function (req, res){
@@ -415,7 +426,7 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
     {
         curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.email});
         let result = await curUser.register();
-        res.render('registration_result', {username: curUser.username, result: result});    
+        res.render('registration_result', {username: curUser.username, result: result});
     } 
     catch (err)
     {
@@ -431,8 +442,8 @@ app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
         let result = await curUser.login();
         if (result)
         {
-            req.session.user = {name: curUser.username};
-            app.locals.user = curUser;
+            userObj = await dbManager.get().collection("users").findOne({username: curUser.username});
+            req.session.user = userObj;
         }
         res.render('login_result', {username: curUser.username, result: result});
     } 
