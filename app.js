@@ -265,14 +265,15 @@ async function searchResp(result, response)
         //the await must be wrapped in a try/catch in case the promise rejects
         try{
             await result.data.forEach((item) =>{
-                page+=`Match ${++count}: ${item.username}  <br>`;
+                page+=`Match ${++count}: ${item.username} from ${item.city}, ${item.state}. Profile { Name: ${item.profile.name}, Age: ${item.profile.age}, 
+                Gender: ${item.profile.gender}, Height: ${item.profile.height}cm, Race: ${item.profile.race}, Income: ${item.profile.income}, Religion: ${item.profile.religion} } <br>`;
                 });
             } catch (e){
                 page+=e.message;
                 throw e;
             }
     }
-    page+='<br><br><a href="/">Home Page</a></body></html>';
+    page+='<br><br><a href="/home">Home Page</a></body></html>';
       
     return page;
 }
@@ -281,32 +282,43 @@ async function searchResp(result, response)
 async function matchResp(result, response){
     let page = '<html><head><title>Dating Match Page</title>'+
     '<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">'+
-    //'<link rel="stylesheet" href="/resources/demos/style.css">'+
     '<script src="https://code.jquery.com/jquery-1.12.4.js"></script>' + 
     '<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>' + 
     '<script>' +
-    'var min;'+
-    'var max;'+
+    'var minage;'+
+    'var maxage;'+
+    'var minheight;'+
+    'var maxheight;'+
     '$( function() {'+
-    '   $( "#slider-range" ).slider({'+
-    '       range: true, min: 18, max: 100, values: [ 18, 24 ], slide: function( event, ui ) {'+
-    '           $("#amount").val(ui.values[0] + " - " + ui.values[ 1 ] );'+
-    '           min = ui.values[0];'+
-    '           max = ui.values[1];'+
+    '   $( "#age-range" ).slider({'+
+    '       range: true, min: 18, max: 100, values: [ 18, 35 ], slide: function( event, ui ) {'+
+    '           minage = ui.values[0];'+
+    '           maxage = ui.values[1];'+
+    '           $("#minAge").val(minage);'+
+    '           $("#maxAge").val(maxage);'+
     '       }'+
     '   });'+
-    '   $("#amount").val( "$" + $( "#slider-range").slider("values", 0 ) + '+
-    '       " - $" + $("#slider-range").slider("values", 1 ) );'+
-    '   min = $("#slider-range").slider("values", 0);'+
-    '   max = $("#slider-range").slider("values", 1);'+
-    '   console.log(min, max);'+
+    '   minage = $("#age-range").slider("values", 0);'+
+    '   maxage = $("#age-range").slider("values", 1);'+
+    '   $("#minAge").val(minage);'+
+    '   $("#maxAge").val(maxage);'+
+    '   $( "#height-range" ).slider({'+
+    '       range: true, min: 100, max: 300, values: [ 150, 200 ], slide: function( event, ui ) {'+
+    '           minheight = ui.values[0];'+
+    '           maxheight = ui.values[1];'+
+    '           $("#minHeight").val(minheight);'+
+    '           $("#maxHeight").val(maxheight);'+
+    '       }'+
+    '   });'+
+    '   minheight = $("#height-range").slider("values", 0);'+
+    '   maxheight = $("#height-range").slider("values", 1);'+
+    '   $("#minHeight").val(minheight);'+
+    '   $("#maxHeight").val(maxheight);'+
     '});'+
     '</script>'+
     '</head>'+
     '<body> <form method="post">'+
     '<h1>Fill out the following information to make a match</h1>'+
-    '<div id="slider-range" style="width:200px; float:left;"></div>'+
-    '  <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;"><br>'+
     'Prefered Gender:'+
         '<select name="gender" size="1">'+
         '<option value="n" selected="selected"> No Preference </option>'+
@@ -324,11 +336,13 @@ async function matchResp(result, response){
         '<option value="Other"> Other </option>'+
         '</select> <br>'+
     'Prefered Age Range: '+
-        'min<input type="number" name="minAge" value=$(#slider-range).slider({$("#minAge").val(ui.values[0]);})> '+
-        'max<input type="number" name="maxAge" min="18" max="100" step="1"> <br>'+
+        'min<input type="text" id="minAge" name="minAge" readonly style="width:25px;">'+
+        '<div id="age-range" style="width:150px; display:inline-block; margin-left:10px; margin-right:10px;"></div>'+
+        'max<input type="text" id="maxAge" name="maxAge" readonly style="width:25px;"> <br>'+
     'Prefered Height Range in cm: '+
-        'min<input type="number" name="minHeight" min="0" max="500" step="1"> '+
-        'max<input type="number" name="maxHeight" min="0" max="500" step="1"> <br>'+
+        'min<input type="text" id="minHeight" name="minHeight" readonly style="width:30px;"> '+
+        '<div id="height-range" style="width:150px; display:inline-block; margin-left:10px; margin-right:10px;"></div>'+
+        'max<input type="text" id="maxHeight" name="maxHeight" readonly style="width:30px;""> <br>'+
     'Prefered Religion:'+
         '<select name="religion" size="1">'+
         '<option value="n" selected="selected"> No Preference </option>'+
@@ -358,7 +372,7 @@ async function matchResp(result, response){
         }
         }
 
-    page +='<br><br><a href="/">Home Page</a></body></html>';
+    page +='<br><br><a href="/home">Home Page</a></body></html>';
     return page;
 }
 
@@ -376,21 +390,23 @@ app.post('/search', function(req, res){
             let col = dbManager.get().collection("users");
             var prop= postParams.prop;
             var val = postParams.value;
+            let regVal;
             let searchDoc;
 
-            let test;
-
-            if (prop == "username" || prop == "city" || prop == "state"){
-                test = new RegExp(`^${val}+`)
-                console.log ("The value in test is: ", test);
-                searchDoc = { [`${prop}`] : test};
-                console.log("The searchDoc is: ", searchDoc)
+            /* username and name use regular expressions so you do not need
+             to type out a name fully */
+            if (prop == "username"){
+                regVal = new RegExp(`^${val}+`);
+                searchDoc = { [`${prop}`] : regVal};
+            } else if (prop == "name") {
+                regVal = new RegExp(`^${val}+`);
+                searchDoc = { [`profile.${prop}`] : regVal};
+            } else if (prop == "city" || prop == "state"){
+                searchDoc = { [prop] : val};
             } else {
-            test = `{$regex: /${val}*/}`
-            
-            searchDoc = { [`profile.${prop}`] : test};
+                searchDoc = { [`profile.${prop}`] : val};
             }
-            
+
             try{
             let cursor = col.find(searchDoc);
             let resultOBJ={data: cursor, [prop]  : val, prop: prop};
