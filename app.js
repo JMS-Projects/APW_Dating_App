@@ -106,9 +106,12 @@ app.get('/search', function(req, res, next)
 {
     if (req.session.user)
     {
+        res.render('search');
+        /*
         searchResp(null, res).then(
         page=> {    res.send(page); }
         ).catch(next);
+        */
     }
     else
     {
@@ -260,12 +263,12 @@ async function searchResp(result, response)
     
     if (result)
     {
-        page+=`<h2>Matches for ${result.prop}: ${result[result.prop]}</h2>`
+        page+=`<h2>Search results for ${result.prop}: ${result[result.prop]}</h2>`
         let count = 0;
         //the await must be wrapped in a try/catch in case the promise rejects
         try{
             await result.data.forEach((item) =>{
-                page+=`Match ${++count}: ${item.username} from ${item.city}, ${item.state}. Profile { Name: ${item.profile.name}, Age: ${item.profile.age}, 
+                page+=`Result ${++count}: ${item.username} from ${item.city}, ${item.state}. Profile { Name: ${item.profile.name}, Age: ${item.profile.age}, 
                 Gender: ${item.profile.gender}, Height: ${item.profile.height}cm, Race: ${item.profile.race}, Income: ${item.profile.income}, Religion: ${item.profile.religion} } <br>`;
                 });
             } catch (e){
@@ -410,10 +413,13 @@ app.post('/search', function(req, res){
             try{
             let cursor = col.find(searchDoc);
             let resultOBJ={data: cursor, [prop]  : val, prop: prop};
-    
+                
+            res.render('search', {results: resultOBJ});
+            /*
             searchResp(resultOBJ, res).then( page =>
                               {res.send(page)
                               });//call the searchPage
+                              */
             } catch (e){
             console.log(e.message);
             res.writeHead(404);
@@ -421,9 +427,12 @@ app.post('/search', function(req, res){
             res.end("<br>" + e.message + "<br></body></html>");
             }
         } else{ // can't move on
+            res.render('search');
+            /*
             searchResp(null, res).then(
-            page => {res.send(page)}
-        );
+            page => {res.send(page)} */
+        
+        //);
         }
     });
 });
