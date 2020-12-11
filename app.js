@@ -414,12 +414,12 @@ app.post('/search', function(req, res){
             let cursor = col.find(searchDoc);
             let resultOBJ={data: cursor, [prop]  : val, prop: prop};
                 
-            res.render('search', {results: resultOBJ});
-            /*
+            //res.render('search', {results: resultOBJ});
+            
             searchResp(resultOBJ, res).then( page =>
                               {res.send(page)
                               });//call the searchPage
-                              */
+                              
             } catch (e){
             console.log(e.message);
             res.writeHead(404);
@@ -575,16 +575,20 @@ app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
 			{
 				console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${userObj.username} logged in successfully`);
                 req.session.user = userObj;
-                res.end();
+                res.redirect("/");
                 // render home page with login success message
                 // let msg = `You logged in successfully as ${req.session.user.username}`
                 // res.render('/', {msg:msg})
             }
         }
-        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${req.body.uName}`);
-        let msg = "You failed to log in"
-        let entry = {uName: req.body.uName, pWord: req.body.pWord};
-        res.render('login', {entry: entry, msg: msg});
+        else{
+            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${req.body.uName}`);
+            let msg = "You failed to log in"
+            let entry = {uName: req.body.uName, pWord: req.body.pWord};
+            res.render('login', {entry: entry, msg: msg});
+
+        }
+       
     } 
     catch (err)
     {
