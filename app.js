@@ -129,6 +129,7 @@ app.post('/updateP', bp.urlencoded({extended: false}), function(req, res, next)
     if (req.body.gender.trim() != '') updateDoc.gender = req.body.gender.trim();
     if (req.body.height.trim() != '') updateDoc.height = req.body.height.trim();
     if (req.body.race.trim() != '') updateDoc.race = req.body.race.trim();
+    if (req.body.hobby.trim() != '') updateDoc.hobby = req.body.race.trim();
     if (req.body.income.trim() != '') updateDoc.income = req.body.income.trim();
     if (req.body.religion.trim() != '') updateDoc.religion = req.body.religion.trim();
    
@@ -475,6 +476,7 @@ app.post('/rProfile', function(req, res){
 						 postParams.gender,
                          postParams.height,
                          postParams.race,
+                         postParams.hobby,
 						 postParams.income,
                          postParams.religion);
 
@@ -550,16 +552,15 @@ app.post('/editPr', function(req, res){
 	console.log(postData);
 	if (moveOn(postData)){
 		try{
+            if (req.session.user.profile.name.trim() != '') req.session.user.profile.name = postParams.name.trim();
+            if (req.session.user.profile.age.trim() != '') req.session.user.profile.age = postParams.age.trim();
+            if (req.session.user.profile.gender.trim() != '') req.session.user.profile.gender = postParams.gender.trim();
+            if (req.session.user.profile.height.trim() != '') req.session.user.profile.height = postParams.height.trim();
+            if (req.session.user.profile.race.trim() != '') req.session.user.profile.race = postParams.race.trim();
+            if (req.session.user.profile.hobby.trim() != '') req.session.user.profile.hobby = postParams.hobby.trim();
+            if (req.session.user.profile.income.trim() != '') req.session.user.profile.income = postParams.income.trim();
+            if (req.session.user.profile.religion.trim() != '') req.session.user.profile.religion = postParams.religion.trim();
 
-		    currProfile = new profile(postParams.name,
-						 postParams.age,
-						 postParams.gender,
-                         postParams.height,
-                         postParams.race,
-						 postParams.income,
-                         postParams.religion);
-
-            req.session.user.profile = currProfile;
             
             res.redirect('/');
 		} catch (err){
@@ -595,13 +596,12 @@ app.post('/editAcc', function(req, res){
 	console.log(postData);
 	if (moveOn(postData)){
 		try{
-
-            req.session.user.username = postParams.uName;
-            req.session.user.password = postParams.pWord;
-            req.session.user.city =  postParams.city;
-            req.session.user.state = postParams.state;
-            req.session.user.email = postParams.email;
-
+            if (req.session.user.username.trim() != '') req.session.user.username = postParams.uName.trim();
+            if (req.session.user.password.trim() != '') req.session.user.password = postParams.pWord.trim();
+            if (req.session.user.city.trim() != '') req.session.user.city = postParams.city.trim();
+            if (req.session.user.state.trim() != '') req.session.user.state = postParams.state.trim();
+            if (req.session.user.email.trim() != '') req.session.user.email = postParams.email.trim();
+            
             
             
             res.redirect('/');
