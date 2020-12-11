@@ -9,6 +9,8 @@ const bp = require("body-parser");
 const dbManager = require('./dbManager');
 const User = require("./User.js");
 let app = express();
+var postData;
+var postParams;
 
 
 const storage = multer.diskStorage({
@@ -57,7 +59,10 @@ app.use(function (req, res, next){
     }
     next();
 })
+//Author: Andrew Griscom
 app.get('/', function (req, res){
+    if(!req.session.user){
+        //res.render('homeWLogin');
     res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
     '<p>This is a Dating application below you have the option of '+
     'registering an account, viewing your profile or searching profiles '+
@@ -65,13 +70,27 @@ app.get('/', function (req, res){
     '<br><br><a href="/login">login/register</a>&emsp;&emsp;<a href="/search">search Page' +
     '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
     '<a href="/chat">chat now!</a></body></html>');
+    }
+    else{
+        //res.render('homeWLogout');
+        res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
+    '<p>This is a Dating application below you have the option of '+
+    'registering an account, viewing your profile or searching profiles '+
+    'of people registered.</p>'+
+    '<br><br><a href="/logout">Logout</a>&emsp;&emsp;<a href="/search">search Page' +
+    '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
+    '<a href="/chat">chat now!</a>&emsp;&emsp;'+ 
+    '<a href="/profile">Profile</body></html>');
+    }
 });
 
-app.get('/update', function(req, res, next)
+app.get('/updateU', function(req, res, next)
 {
-    res.render('update');
+    res.render('updateU');
 });
-app.post('/update', bp.urlencoded({extended: false}), function(req, res, next)
+
+
+app.post('/updateU', bp.urlencoded({extended: false}), function(req, res, next)
 {
     let updateDoc = {};
     if (req.body.pWord.trim() != '') updateDoc.password = req.body.pWord.trim();
@@ -96,12 +115,50 @@ app.post('/update', bp.urlencoded({extended: false}), function(req, res, next)
         // res.render('/update', {msg:msg})
     }
 });
+//Author: Jason, Andrew Griscom
+app.get('/updateP', function(req, res, next)
+{
+    res.render('updateP');
+});
+//Author: Jason, Andrew Griscom
+app.post('/updateP', bp.urlencoded({extended: false}), function(req, res, next)
+{
+    let updateDoc = {};
+    if (req.body.name.trim() != '') updateDoc.name = req.body.name.trim();
+    if (req.body.age.trim() != '') updateDoc.age = req.body.age.trim();
+    if (req.body.gender.trim() != '') updateDoc.gender = req.body.gender.trim();
+    if (req.body.height.trim() != '') updateDoc.height = req.body.height.trim();
+    if (req.body.race.trim() != '') updateDoc.race = req.body.race.trim();
+    if (req.body.income.trim() != '') updateDoc.income = req.body.income.trim();
+    if (req.body.religion.trim() != '') updateDoc.religion = req.body.religion.trim();
+   
+
+    try
+    {
+        dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: updateDoc});
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s personal information has been updated`);
+        res.redirect('/');
+        // render the page again with a success message and the new account info
+        // let msg = "Your account information has been updated"
+        // res.render('/update', {msg: msg})
+    }
+    catch (err)
+    {
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with updating ${req.session.user.username}'s personal information: ${err}`);
+        res.redirect('/');
+        // render page again with error message
+        // let msg = "There was an error with updating your account information"
+        // res.render('/update', {msg:msg})
+    }
+});
+
 app.get('/logout', function(req, res,next)
 {
     req.session.destroy();
     res.redirect('/');
 });
 
+// Ryan Morgan
 app.get('/search', function(req, res, next)
 {
     if (req.session.user)
@@ -119,24 +176,62 @@ app.get('/search', function(req, res, next)
     }
 });
 
-app.get('/home', function (req, res){
-    res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
-    '<p>This is a Dating application below you have the option of '+
-    'registering an account, viewing your profile or searching profiles '+
-    'of people registered.</p>'+
-    '<br><br><a href="/profile">Profile</a>&emsp;&emsp;<a href="/search">search Page' +
-    '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
-    '<a href="/chat">chat now!</a></body></html>');
-});
+// Ryan Morgan,
 
-app.get('/home2', function (req, res){
-    res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
-    '<p>This is a Dating application below you have the option of '+
-    'registering an account, viewing your profile or searching profiles '+
-    'of people registered.</p>'+
-    '<br><br><a href="/rProfile">Create Profile</a>&emsp;&emsp;<a href="/search">search Page' +
-    '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
-    '<a href="/chat">chat now!</a></body></html>');
+app.post('/search', function(req, res){
+    postData = '';
+    req.on('data', (data) =>{
+	postData+=data;
+    });
+    req.on('end', async ()=>{
+        //Break into functions
+        console.log(postData);
+        if (moveOn(postData)){
+            let col = dbManager.get().collection("users");
+            var prop= postParams.prop;
+            var val = postParams.value;
+            let regVal;
+            let searchDoc;
+
+            /* username and name use regular expressions so you do not need
+             to type out a name fully */
+            if (prop == "username"){
+                regVal = new RegExp(`^${val}+`);
+                searchDoc = { [`${prop}`] : regVal};
+            } else if (prop == "name") {
+                regVal = new RegExp(`^${val}+`);
+                searchDoc = { [`profile.${prop}`] : regVal};
+            } else if (prop == "city" || prop == "state"){
+                searchDoc = { [prop] : val};
+            } else {
+                searchDoc = { [`profile.${prop}`] : val};
+            }
+
+            try{
+            let cursor = col.find(searchDoc);
+            let resultOBJ={data: cursor, [prop]  : val, prop: prop};
+                
+            //res.render('search', {results: resultOBJ});
+            
+            searchResp(resultOBJ, res).then( page =>
+                              {res.send(page)
+                              });//call the searchPage
+                              
+            } catch (e){
+            console.log(e.message);
+            res.writeHead(404);
+            res.write("<html><body><h1> ERROR 404. Page NOT FOUND</h1>");
+            res.end("<br>" + e.message + "<br></body></html>");
+            }
+        } else{ // can't move on
+            res.render('search');
+            /*
+            searchResp(null, res).then(
+            page => {res.send(page)} */
+        
+        //);
+        }
+    });
 });
 
 app.get('/login', function(req, res, next)
@@ -152,6 +247,46 @@ app.get('/login', function(req, res, next)
     }
 });
 
+app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
+{
+    for (prop in req.body)
+    {
+        if (req.body[prop] === '')
+        {
+            res.render('login', {msg: "fill out everything"});
+        }
+    }
+    
+    try
+    {
+		const userObj = await dbManager.get().collection("users").findOne({username: req.body.uName});
+		if (userObj != null)
+		{
+			if (userObj.password === req.body.pWord)
+			{
+				console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${userObj.username} logged in successfully`);
+                req.session.user = userObj;
+                res.redirect('/');
+                // render home page with login success message
+                // let msg = `You logged in successfully as ${req.session.user.username}`
+                // res.render('/', {msg:msg})
+            }
+        }
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${req.body.uName}`);
+        let msg = "You failed to log in"
+        let entry = {uName: req.body.uName, pWord: req.body.pWord};
+        res.render('login', {entry: entry, msg: msg});
+    } 
+    catch (err)
+    {
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
+        res.end();
+        // render login page with error message
+        // let msg = "You failed to log in"
+        // res.render('/login', {msg:msg})
+    }	    
+});
+
 app.get('/register', function(req, res, next)
 {
     if (req.session.user)
@@ -164,6 +299,56 @@ app.get('/register', function(req, res, next)
         res.render('register', {entry: entry})
     }
 });
+
+app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
+{
+    for (prop in req.body)
+    {
+        if (req.body[prop] === '')
+        {
+            let msg = "You need to fill out all fields"
+            res.render('register', {msg: msg, entry: req.body});
+        }
+    }
+    try
+    {
+        let curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.email})
+		const userObj = await dbManager.get().collection("users").findOne({username: curUser.username});
+		if(userObj == null)
+		{
+			let result = await dbManager.get().collection("users").insertOne(curUser);
+			if(result.insertedCount == 1)
+			{
+                console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${curUser.username} has been registered`);
+                req.session.user = curUser;
+                res.redirect('/')
+                // render home page with success message
+                // let msg = `You have successfully registered as ${curUser.username}`
+                // res.render('/', {msg:msg})
+			}
+			else
+			{
+                console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. Mongo failed to insert ${curUser.username} into the database`);
+                let msg = "There was an error with inserting your account into the database";
+                res.render('register', {entry: req.body, msg: msg});
+			}
+        }
+        else
+        {
+            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. ${curUser.username} already exists in the database`);
+            let msg = "That username already exists."
+            res.render('register', {entry: req.body, msg: msg});
+
+        }
+    } 
+    catch (err)
+    {
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with user creation or registration: ${err.message}`);
+        let msg = "There was an error with your registration";
+        res.render('register', {entry: req.body, msg: msg});
+    }
+});
+
 app.get('/match', function(req, res, next)
 {
     if (req.session.user)
@@ -177,24 +362,162 @@ app.get('/match', function(req, res, next)
         res.redirect('/login');
     }
 });
-app.get('/profile', function(req, res, next){
-    profileResp(null, res).then(
-    page=> {    res.send(page); }
-    ).catch(next);
+
+// Ryan Morgan,
+app.post('/match', function(req, res){
+    postData = '';
+    req.on('data', (data) =>{
+        postData+=data;
+    });
+    req.on('end', async ()=>{
+        //Break into functions
+        console.log(postData);
+        postParams = qString.parse(postData);
+
+        let col = dbManager.get().collection("users");
+        var prop= postParams.prop;
+        var val = postParams.value;
+        var gender;
+        var race;
+        var age;
+        var height;
+        var religion;
+
+        if (postParams.gender == 'n'){
+            gender = {$exists: true};
+        } else {
+            gender = postParams.gender;
+        }
+
+        if (postParams.race == 'n'){
+            race = {$exists: true};
+        } else {
+            race = postParams.race;
+        }
+
+        if (postParams.minAge != '' && postParams.maxAge != ''){
+            age = {$gte: Number(postParams.minAge), $lte: Number(postParams.maxAge)};
+        } else {
+            age = {$exists: true};
+        }
+
+        if (postParams.minHeight != '' && postParams.maxHeight != '') {
+            height = {$gte: Number(postParams.minHeight), $lte: Number(postParams.maxHeight)};
+        } else {
+            height = {$exists: true};
+        }
+
+        if (postParams.religion == 'n'){
+            religion = {$exists: true};
+        } else {
+            religion = postParams.religion;
+        }
+
+        //simple equality search. using [] allows a variable
+        //in the property name
+        let searchDoc = { "profile.gender": gender, "profile.race": race, "profile.age": age, 
+            "profile.height": height, "profile.religion": religion};
+
+        try{
+            let cursor = col.find(searchDoc);
+            let resultOBJ={data: cursor, [prop]  : val, prop: prop};
+    
+            matchResp(resultOBJ, res).then( page =>
+                            {res.send(page)
+                            });//call the matchPage
+        } catch (e){
+            console.log(e.message);
+            res.writeHead(404);
+            res.write("<html><body><h1> ERROR 404. Page NOT FOUND</h1>");
+            res.end("<br>" + e.message + "<br></body></html>");
+        }
+    });
 });
 
+//Author: Andrew Griscom
+app.get('/profile', function(req, res, next){
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing profile page`);
+    if(req.session.user.profile != null)
+    {
+        res.render('Profile');
+    }
+    else{
+        res.redirect('/rProfile');
+    }
+});
+
+//Author: Andrew Griscom
 app.get('/rProfile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for creating profile page`);
-    res.render('rProfile');
+    if (req.session.user)
+    {
+        res.render('rProfile');
+    }
+    else{
+        res.redirect('/login');
+    }
 });
 
+//Author: Andrew Griscom
+app.post('/rProfile', function(req, res){
+    postData = '';
+    req.on('data', (data) =>{
+	postData+=data;
+    });
+    req.on('end', async ()=>{
+	//Break into functions
+	console.log(postData);
+	if (moveOn(postData)){
+		try{
 
-app.get('/match', function(req, res, next){
-    matchResp(null, res).then(
-    page=> {    res.send(page); }
-    ).catch(next);
+		    let currProfile = new profile(postParams.name,
+						 postParams.age,
+						 postParams.gender,
+                         postParams.height,
+                         postParams.race,
+						 postParams.income,
+                         postParams.religion);
+
+            req.session.user.profile = currProfile;
+            
+            //update database here
+            res.render('personalP', {profile: req.session.user.profile});
+            
+		 // console.log(result); //log result for viewing
+		} catch (err){
+		    console.log(err.message);
+		  
+		}
+	} else{ //can't move on
+	   res.render('rProfile');
+	}
+    });
+    	    
 });
-
+//Author: Andrew Griscom
+app.get('/account', function(req, res, next){
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing account settings page`);
+    if (req.session.user)
+    {
+        res.render('account', {account: req.session.user});
+    }
+    else
+    {
+        res.redirect('/login');
+    }
+    
+});
+//Author: Andrew Griscom
+app.get('/personalP', function(req, res, next){
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing personal settings page`);
+    if (req.session.user)
+    {
+        res.render('personalP', {profile: req.session.user.profile})
+    }
+    else{
+        res.redirect('/login');
+    }
+});
 
 var htmlPath = path.join(__dirname, 'html');
 app.use('/chat', express.static(htmlPath));
@@ -203,15 +526,96 @@ app.use('/chat', express.static(htmlPath));
 app.get('/test', function(req, res){
     res.render('test');
 })
-
+//Author: Andrew Griscom
 app.get('/editPr', function(req, res, next){
-    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request to edit profile page`);
-    res.render('editPr', {profile: currProfile});
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request to edit personal profile page`);
+    if (req.session.user)
+    {
+        res.render('editPr', {profile: req.session.user.profile});
+    }
+    else
+    {
+        res.redirect('/login');
+    }
+});
+
+//Author: Andrew Griscom
+app.post('/editPr', function(req, res){
+    postData = '';
+    req.on('data', (data) =>{
+	postData+=data;
+    });
+    req.on('end', async ()=>{
+	//Break into functions
+	console.log(postData);
+	if (moveOn(postData)){
+		try{
+
+		    currProfile = new profile(postParams.name,
+						 postParams.age,
+						 postParams.gender,
+                         postParams.height,
+                         postParams.race,
+						 postParams.income,
+                         postParams.religion);
+
+            req.session.user.profile = currProfile;
+            
+            res.redirect('/');
+		} catch (err){
+		    console.log(err.message);
+		}
+	} else{ //can't move on
+        res.render('editPr');
+	}
+    });
+    	    
+});
+
+//Author: Andrew Griscom
+app.get('/editAcc', function(req, res, next){
+    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request to edit account settings page`);
+    if (req.session.user)
+    {
+        res.render('editAcc', {account: req.session.user});
+    }
+    else
+    {
+        res.redirect('/login');
+    }
+});
+//Author: Andrew Griscom
+app.post('/editAcc', function(req, res){
+    postData = '';
+    req.on('data', (data) =>{
+	postData+=data;
+    });
+    req.on('end', async ()=>{
+	//Break into functions
+	console.log(postData);
+	if (moveOn(postData)){
+		try{
+
+            req.session.user.username = postParams.uName;
+            req.session.user.password = postParams.pWord;
+            req.session.user.city =  postParams.city;
+            req.session.user.state = postParams.state;
+            req.session.user.email = postParams.email;
+
+            
+            
+            res.redirect('/');
+		} catch (err){
+		    console.log(err.message);
+		}
+	} else{ //can't move on
+        res.redirect('/');
+	}
+    });
+    	    
 });
 
 
-var postParams;
-var currProfile;
 function moveOn(postData){
     let proceed = true;
     postParams = qString.parse(postData);
@@ -222,20 +626,6 @@ function moveOn(postData){
 	}
     }
     return proceed;
-}
-
-async function profileResp(info, res){
-    try{
-        
-        let page = currProfile.displayProfile();
-        page += '<br><br><a href="/home">Home Page</a><br><a href="/editPr">Edit profile</a></body></html>';
-        res.send(page);
-    }
-    catch(err)
-    {
-        console.log(err.message);
-
-    }
 }
 
 // Ryan Morgan,
@@ -379,229 +769,11 @@ async function matchResp(result, response){
     return page;
 }
 
-// Ryan Morgan,
-var postData;
-app.post('/search', function(req, res){
-    postData = '';
-    req.on('data', (data) =>{
-	postData+=data;
-    });
-    req.on('end', async ()=>{
-        //Break into functions
-        console.log(postData);
-        if (moveOn(postData)){
-            let col = dbManager.get().collection("users");
-            var prop= postParams.prop;
-            var val = postParams.value;
-            let regVal;
-            let searchDoc;
 
-            /* username and name use regular expressions so you do not need
-             to type out a name fully */
-            if (prop == "username"){
-                regVal = new RegExp(`^${val}+`);
-                searchDoc = { [`${prop}`] : regVal};
-            } else if (prop == "name") {
-                regVal = new RegExp(`^${val}+`);
-                searchDoc = { [`profile.${prop}`] : regVal};
-            } else if (prop == "city" || prop == "state"){
-                searchDoc = { [prop] : val};
-            } else {
-                searchDoc = { [`profile.${prop}`] : val};
-            }
-
-            try{
-            let cursor = col.find(searchDoc);
-            let resultOBJ={data: cursor, [prop]  : val, prop: prop};
-                
-            //res.render('search', {results: resultOBJ});
-            
-            searchResp(resultOBJ, res).then( page =>
-                              {res.send(page)
-                              });//call the searchPage
-                              
-            } catch (e){
-            console.log(e.message);
-            res.writeHead(404);
-            res.write("<html><body><h1> ERROR 404. Page NOT FOUND</h1>");
-            res.end("<br>" + e.message + "<br></body></html>");
-            }
-        } else{ // can't move on
-            res.render('search');
-            /*
-            searchResp(null, res).then(
-            page => {res.send(page)} */
-        
-        //);
-        }
-    });
-});
-
-// Ryan Morgan,
-app.post('/match', function(req, res){
-    postData = '';
-    req.on('data', (data) =>{
-        postData+=data;
-    });
-    req.on('end', async ()=>{
-        //Break into functions
-        console.log(postData);
-        postParams = qString.parse(postData);
-
-        let col = dbManager.get().collection("users");
-        var prop= postParams.prop;
-        var val = postParams.value;
-        var gender;
-        var race;
-        var age;
-        var height;
-        var religion;
-
-        if (postParams.gender == 'n'){
-            gender = {$exists: true};
-        } else {
-            gender = postParams.gender;
-        }
-
-        if (postParams.race == 'n'){
-            race = {$exists: true};
-        } else {
-            race = postParams.race;
-        }
-
-        if (postParams.minAge != '' && postParams.maxAge != ''){
-            age = {$gte: Number(postParams.minAge), $lte: Number(postParams.maxAge)};
-        } else {
-            age = {$exists: true};
-        }
-
-        if (postParams.minHeight != '' && postParams.maxHeight != '') {
-            height = {$gte: Number(postParams.minHeight), $lte: Number(postParams.maxHeight)};
-        } else {
-            height = {$exists: true};
-        }
-
-        if (postParams.religion == 'n'){
-            religion = {$exists: true};
-        } else {
-            religion = postParams.religion;
-        }
-
-        //simple equality search. using [] allows a variable
-        //in the property name
-        let searchDoc = { "profile.gender": gender, "profile.race": race, "profile.age": age, 
-            "profile.height": height, "profile.religion": religion};
-
-        try{
-            let cursor = col.find(searchDoc);
-            let resultOBJ={data: cursor, [prop]  : val, prop: prop};
-    
-            matchResp(resultOBJ, res).then( page =>
-                            {res.send(page)
-                            });//call the matchPage
-        } catch (e){
-            console.log(e.message);
-            res.writeHead(404);
-            res.write("<html><body><h1> ERROR 404. Page NOT FOUND</h1>");
-            res.end("<br>" + e.message + "<br></body></html>");
-        }
-    });
-});
-
-app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
-{
-    for (prop in req.body)
-    {
-        if (req.body[prop] === '')
-        {
-            let msg = "You need to fill out all fields"
-            res.render('register', {msg: msg, entry: req.body});
-        }
-    }
-    try
-    {
-        let curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.email})
-		const userObj = await dbManager.get().collection("users").findOne({username: curUser.username});
-		if(userObj == null)
-		{
-			let result = await dbManager.get().collection("users").insertOne(curUser);
-			if(result.insertedCount == 1)
-			{
-                console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${curUser.username} has been registered`);
-                req.session.user = curUser;
-                res.redirect('/')
-                // render home page with success message
-                // let msg = `You have successfully registered as ${curUser.username}`
-                // res.render('/', {msg:msg})
-			}
-			else
-			{
-                console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. Mongo failed to insert ${curUser.username} into the database`);
-                let msg = "There was an error with inserting your account into the database";
-                res.render('register', {entry: req.body, msg: msg});
-			}
-        }
-        else
-        {
-            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. ${curUser.username} already exists in the database`);
-            let msg = "That username already exists."
-            res.render('register', {entry: req.body, msg: msg});
-
-        }
-    } 
-    catch (err)
-    {
-        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with user creation or registration: ${err.message}`);
-        let msg = "There was an error with your registration";
-        res.render('register', {entry: req.body, msg: msg});
-    }
-});
-app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
-{
-    for (prop in req.body)
-    {
-        if (req.body[prop] === '')
-        {
-            res.render('login', {msg: "fill out everything"});
-        }
-    }
-    
-    try
-    {
-		const userObj = await dbManager.get().collection("users").findOne({username: req.body.uName});
-		if (userObj != null)
-		{
-			if (userObj.password === req.body.pWord)
-			{
-				console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${userObj.username} logged in successfully`);
-                req.session.user = userObj;
-                res.redirect("/");
-                // render home page with login success message
-                // let msg = `You logged in successfully as ${req.session.user.username}`
-                // res.render('/', {msg:msg})
-            }
-        }
-        else{
-            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${req.body.uName}`);
-            let msg = "You failed to log in"
-            let entry = {uName: req.body.uName, pWord: req.body.pWord};
-            res.render('login', {entry: entry, msg: msg});
-
-        }
-       
-    } 
-    catch (err)
-    {
-        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
-        res.end();
-        // render login page with error message
-        // let msg = "You failed to log in"
-        // res.render('/login', {msg:msg})
-    }	    
-});
 app.get('/test/upload/complete', function(req, res){
     res.render('test', {msg: app.locals.msg, file: app.locals.file});
 });
+
 app.post('/test/upload', function(req, res){
     upload(req, res, (err)=>{
         if(err){
@@ -621,81 +793,6 @@ app.post('/test/upload', function(req, res){
         
     });
 });
-
-
-app.post('/rProfile', function(req, res){
-    postData = '';
-    req.on('data', (data) =>{
-	postData+=data;
-    });
-    req.on('end', async ()=>{
-	//Break into functions
-	console.log(postData);
-	if (moveOn(postData)){
-		try{
-
-		    currProfile = new profile(postParams.name,
-						 postParams.age,
-						 postParams.gender,
-                         postParams.height,
-                         postParams.race,
-						 postParams.income,
-                         postParams.religion);
-
-            
-            let page = currProfile.displayProfile();
-            page += '<br><br><a href="/home">Home Page</a></body></html>';
-            res.send(page);
-		 // console.log(result); //log result for viewing
-		} catch (err){
-		    console.log(err.message);
-		    //let page = rProfileResp(null, res);
-		    //res.send(page);
-		}
-	} else{ //can't move on
-	   // let page =  rProfileResp(null, res);
-	    //res.send(page);
-	}
-    });
-    	    
-});
-
-app.post('/editPr', function(req, res){
-    postData = '';
-    req.on('data', (data) =>{
-	postData+=data;
-    });
-    req.on('end', async ()=>{
-	//Break into functions
-	console.log(postData);
-	if (moveOn(postData)){
-		try{
-
-		    currProfile = await new profile(postParams.name,
-						 postParams.age,
-						 postParams.gender,
-                         postParams.height,
-                         postParams.race,
-						 postParams.income,
-                         postParams.religion);
-
-            
-            
-            res.redirect('/home');
-		 // console.log(result); //log result for viewing
-		} catch (err){
-		    console.log(err.message);
-		    //let page = rProfileResp(null, res);
-		    //res.send(page);
-		}
-	} else{ //can't move on
-	   // let page =  rProfileResp(null, res);
-	    //res.send(page);
-	}
-    });
-    	    
-});
-
 
 app.use('*', function(req, res){
     res.writeHead(404);
