@@ -562,12 +562,12 @@ app.post('/editPr', function(req, res){
             if (req.session.user.profile.religion.trim() != '') req.session.user.profile.religion = postParams.religion.trim();
 
             
-            res.redirect('/');
+            res.redirect('/profile');
 		} catch (err){
 		    console.log(err.message);
 		}
 	} else{ //can't move on
-        res.render('editPr');
+        res.redirect('/profile');
 	}
     });
     	    
@@ -604,12 +604,12 @@ app.post('/editAcc', function(req, res){
             
             
             
-            res.redirect('/');
+            res.redirect('/profile');
 		} catch (err){
 		    console.log(err.message);
 		}
 	} else{ //can't move on
-        res.redirect('/');
+        res.redirect('/profile');
 	}
     });
     	    
