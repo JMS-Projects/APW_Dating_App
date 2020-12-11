@@ -1,7 +1,7 @@
 
 class profile 
 {
-    constructor(name, age, gender, height, race, income, religion) 
+    constructor(name, age, gender, height, race, hobby, income, religion) 
     {
 
 	    
@@ -12,6 +12,7 @@ class profile
             this.gender = gender;
             this.height = height;
             this.race= race;
+            this.hobby = hobby;
             this.income = income;
             this.religion = religion;
 
