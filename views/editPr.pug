@@ -43,6 +43,10 @@ form(method='post')
     option(value='Other') Other
   br
   br
+  |         Favorite hobby:
+  input(type='text' name='hobby' value=profile.hobby)
+  br
+  br
   |         Income:   #{profile.income} 
   br
   input(type='radio' name='income' value=profile.income checked='checked')
