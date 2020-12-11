@@ -666,7 +666,7 @@ async function searchResp(result, response)
                 throw e;
             }
     }
-    page+='<br><br><a href="/home">Home Page</a></body></html>';
+    page+='<br><br><a href="/">Home Page</a></body></html>';
       
     return page;
 }
@@ -765,7 +765,7 @@ async function matchResp(result, response){
         }
         }
 
-    page +='<br><br><a href="/home">Home Page</a></body></html>';
+    page +='<br><br><a href="/">Home Page</a></body></html>';
     return page;
 }
 
