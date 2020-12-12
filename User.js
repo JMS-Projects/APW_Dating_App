@@ -11,7 +11,7 @@ class User
 		if (args.email)		this.email = args.email.trim();
 		if (args.blockList)	this.blockList = args.blockList;
 		if (args.profile)	this.profile = args.profile;
-		if (args.pfp_path)  this.profile_picture_path = args.pfp_path;
+		if (args.pfp_path)  this.pfp_path = args.pfp_path;
 	}
 
     unblock(username)

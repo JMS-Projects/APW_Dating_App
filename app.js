@@ -2,6 +2,7 @@ const http = require("http");
 const profile = require("./profile.js");
 const qString = require("querystring");
 const express = require("express");
+const fs = require('fs')
 const session = require("express-session");
 const multer = require("multer");
 const path = require("path");
@@ -62,11 +63,11 @@ app.use(function (req, res, next){
 //Author: Andrew Griscom
 app.get('/', function (req, res){
     if(!req.session.user){
-        res.render('home');
+        res.render('home', {pfp: "https://i.ibb.co/0DHyL5k/1.png"});
     }
     else{
 
-        res.render('main_layout');
+        res.render('main_layout', {pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
 });
 
@@ -263,6 +264,7 @@ app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
         let msg = "You failed to log in"
         let entry = {uName: req.body.uName, pWord: req.body.pWord};
         res.render('login', {entry: entry, msg: msg});
+
     } 
     catch (err)
     {
@@ -511,8 +513,8 @@ var htmlPath = path.join(__dirname, 'html');
 app.use('/chat', express.static(htmlPath));
 
 
-app.get('/test', function(req, res){
-    res.render('test');
+app.get('/pfp_upload', function(req, res){
+    res.render('pfp_upload');
 })
 //Author: Andrew Griscom
 app.get('/editPr', function(req, res, next){
@@ -756,25 +758,41 @@ async function matchResp(result, response){
 }
 
 
-app.get('/test/upload/complete', function(req, res){
-    res.render('test', {msg: app.locals.msg, file: app.locals.file});
+app.get('/pfp_upload/complete', function(req, res){
+    res.render('pfp_upload', {msg: app.locals.msg, file: app.locals.file});
 });
 
-app.post('/test/upload', function(req, res){
+app.post('/pfp_upload', function(req, res){
     upload(req, res, (err)=>{
+        // errors
         if(err){
             app.locals.msg = err;
-            res.redirect('/test/upload/complete');
+            res.render('/pfp_upload', {msg: err});
         }
-    
+        // no file selected
         if(req.file == undefined){
             app.locals.msg = 'Error: No file selected';
-            res.redirect('/test/upload/complete');
+            res.redirect('/pfp_upload');
         }
+        // successful upload
         else{
             app.locals.msg = 'File uploaded';
             app.locals.file = `/profile_pictures/${req.file.filename}`;
-            res.redirect('/test/upload/complete');
+            // in this case, we delete the picture in the server's file system
+            if (req.session.user.pfp_path)
+            {
+                let path = `./profile_pictures/${req.session.user.pfp_path}`;
+                fs.unlink(path, (err) => {
+                if (err) 
+                {
+                    console.error(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile picture upload has run into an error: ${err}`);
+                    return;
+                }});
+            }
+            req.session.user.pfp_path = req.file.filename;
+            dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: {pfp_path: req.file.filename}});
+            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile picture has been updated`);
+            res.redirect('/pfp_upload/complete');
         }
         
     });

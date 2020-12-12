@@ -6,7 +6,7 @@ html
         h1 Submit a profile picture
         if msg
             p #{msg}
-        form(action="/test/upload" method="post" enctype="multipart/form-data")
+        form(action="/pfp_upload" method="post" enctype="multipart/form-data")
             label(for="img")
                 | Select picture:
             input(type="file" id="img" name="img" accept="image/*")
