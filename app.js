@@ -82,7 +82,7 @@ app.get('/search', function(req, res, next)
 {
     if (req.session.user)
     {
-        res.render('search', {msg: app.locals.msg});
+        res.render('search', {msg: app.locals.msg, pfp: req.session.user.pfp_path});
         
     }
     else
