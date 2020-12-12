@@ -1,0 +1,58 @@
+doctype html
+html
+    head
+        meta(charset="utf-8")
+        title Home
+        link(href='https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap' rel='stylesheet')
+        link(href='https://fonts.googleapis.com/css2?family=Yeseva+One&display=swap' rel='stylesheet')            
+        style
+            include ./layout.css
+    body
+        div(class="Banner fontsize")
+            h1 Dating App
+        .desc
+            h2 Description:
+        .ptitle
+            p
+            | Welcome to our dating website! Users can login/register an account, create and customize their own profile, search for members based on certain filterable information, match with other users on our app, and chat with other users.
+            u
+                b Your match is just a few clicks away!
+        br
+        .Links
+            .plinks
+                a(href='/search')
+                    img(src='https://i.ibb.co/V0GR9DY/2.png' alt='2' border='0' height='400')
+                br
+                p.linktext Search
+            | &nbsp; 
+            | &nbsp; 
+            | &nbsp; 
+            | &nbsp;
+                
+            .plinks
+                a(href='/profile')
+                    img(src='https://i.ibb.co/0DHyL5k/1.png' alt='1' border='0' height='400')
+                br
+                p.linktext Profile
+            | &nbsp; 
+            | &nbsp; 
+            | &nbsp; 
+            | &nbsp;
+            .plinks
+                a(href='/match')
+                    img(src='https://i.ibb.co/pW7cH8n/3.png' alt='3' border='0' height='400')
+                br
+                p.linktext Match
+            | &nbsp; 
+            | &nbsp; 
+            | &nbsp; 
+            | &nbsp;
+            .plinks
+                a(href='/chat')
+                    img(src='https://i.ibb.co/Qbx8yzp/4.png' alt='4' border='0' height='400')
+                br
+                p.linktext Chat
+        .button
+            form(method='get' action='/login')
+                input.button(type='submit' value='Login/Register')
+

@@ -1,0 +1,115 @@
+
+
+body {
+background: linear-gradient(#FF6767, #FF4A4A, #C50D0D);
+height: 100vh;
+font-family: 'Josefin Sans', sans-serif;
+
+
+}
+    
+
+.Banner {
+
+padding: 10px;
+height: 100px;
+background: #6E0000;
+color: #FFFFFF;
+text-align: center;
+
+
+        
+}
+
+.fontsize {
+    font-size: 27px;
+}
+
+.Profile_img {
+    
+height: 75px;
+width: 75px;
+background: #FFFFFF;
+
+    
+}
+
+
+
+.Links{
+font-size: 20px;
+text-align: center;
+
+    
+    
+}
+
+
+
+.plinks {
+    display: inline-block
+    
+}
+
+
+
+p {
+    font-size: 20px;
+}
+
+
+
+.button {
+    
+    
+    text-align: center;
+    font-size: 30px;
+    
+    
+    
+}
+    
+
+
+.linktext {
+    font-size: 35px;
+}
+
+
+.hlinks  {
+    
+color: #FF6767;
+font-size: 30px;
+position: relative;
+bottom: 10px;
+    
+    
+    
+}
+
+.hlinks a {
+color: #FF6767;
+    
+}
+
+
+.profilepic {
+    position: absolute;
+    transform: translate(75%, -75%)
+}
+    
+    
+
+.desc {
+    font-size: 30px;
+}
+
+    
+        .ptitle {
+            font-size: 25px
+    }
+
+
+
+
+    

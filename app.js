@@ -61,27 +61,7 @@ app.use(function (req, res, next){
 })
 //Author: Andrew Griscom
 app.get('/', function (req, res){
-    if(!req.session.user){
-        //res.render('homeWLogin');
-    res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
-    '<p>This is a Dating application below you have the option of '+
-    'registering an account, viewing your profile or searching profiles '+
-    'of people registered.</p>'+
-    '<br><br><a href="/login">login/register</a>&emsp;&emsp;<a href="/search">search Page' +
-    '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
-    '<a href="/chat">chat now!</a></body></html>');
-    }
-    else{
-        //res.render('homeWLogout');
-        res.end('<html><body><title>Home Page</title><h1>Home Page</h1>' +
-    '<p>This is a Dating application below you have the option of '+
-    'registering an account, viewing your profile or searching profiles '+
-    'of people registered.</p>'+
-    '<br><br><a href="/logout">Logout</a>&emsp;&emsp;<a href="/search">search Page' +
-    '</a>&emsp;&emsp;<a href="/match">Find a Match!</a>&emsp;&emsp;' +
-    '<a href="/chat">chat now!</a>&emsp;&emsp;'+ 
-    '<a href="/profile">Profile</body></html>');
-    }
+    res.render('home');
 });
 
 app.get('/updateU', function(req, res, next)
