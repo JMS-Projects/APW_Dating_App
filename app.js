@@ -82,15 +82,12 @@ app.get('/search', function(req, res, next)
 {
     if (req.session.user)
     {
-        res.render('search');
-        /*
-        searchResp(null, res).then(
-        page=> {    res.send(page); }
-        ).catch(next);
-        */
+        res.render('search', {msg: app.locals.msg});
+        
     }
     else
     {
+        
         res.redirect('/login');
     }
 });
@@ -128,13 +125,17 @@ app.post('/search', function(req, res){
 
             try{
             let cursor = col.find(searchDoc);
-            let resultOBJ={data: cursor, [prop]  : val, prop: prop};
+            let data = [];
+		
+		await cursor.forEach((item)=>{
+		    let curItem={};   
+            curItem = new User({username: item.username, password: item.password, email: item.email, city: item.city, state: item.state, profile: item.profile});
+		    data.push(curItem);
+		})
+            let resultOBJ={data: data, [prop]  : val, prop: prop};
                 
-            //res.render('search', {results: resultOBJ});
+            res.render('search', {results: resultOBJ});
             
-            searchResp(resultOBJ, res).then( page =>
-                              {res.send(page)
-                              });//call the searchPage
                               
             } catch (e){
             console.log(e.message);
@@ -143,10 +144,9 @@ app.post('/search', function(req, res){
             res.end("<br>" + e.message + "<br></body></html>");
             }
         } else{ // can't move on
-            res.render('search');
-            /*
-            searchResp(null, res).then(
-            page => {res.send(page)} */
+            app.locals.msg = 'Enter in a search attribute';
+            res.redirect('/search')
+            
         
         //);
         }
@@ -339,7 +339,14 @@ app.post('/match', function(req, res){
 
         try{
             let cursor = col.find(searchDoc);
-            let resultOBJ={data: cursor, [prop]  : val, prop: prop};
+            let data = [];
+		
+            await cursor.forEach((item)=>{
+                let curItem={};   
+                curItem = new User({username: item.username, password: item.password, email: item.email, city: item.city, state: item.state, profile: item.profile});
+                data.push(curItem);
+            })
+            let resultOBJ={data: data, [prop]  : val, prop: prop};
     
             matchResp(resultOBJ, res).then( page =>
                             {res.send(page)
@@ -461,48 +468,7 @@ function moveOn(postData){
     return proceed;
 }
 
-// Ryan Morgan,
-async function searchResp(result, response)
-{
-    let page = '<html><head><title>Dating App Search</title></head>'+
-    '<body> <form method="post">'+
-    '<h1>Search for a profile</h1>'+
-    'Property <select name="prop">'+
-    '<option>username</option>' +
-    '<option>city</option>' +
-    '<option>state</option>' +
-    '<option>name</option>' +
-    '<option>age</option>' +
-    '<option>gender</option>' +
-    '<option>height</option>' +
-    '<option>race</option>' +
-    '<option>income</option>' +
-    '<option>religion</option>' +
-    '</select>'+
-    '  <input name="value">'+
-    '<input type="submit" value="Search!">' +
-    '<input type="reset" value="Clear">'+
-    '</form>';
-    
-    if (result)
-    {
-        page+=`<h2>Search results for ${result.prop}: ${result[result.prop]}</h2>`
-        let count = 0;
-        //the await must be wrapped in a try/catch in case the promise rejects
-        try{
-            await result.data.forEach((item) =>{
-                page+=`Result ${++count}: ${item.username} from ${item.city}, ${item.state}. Profile { Name: ${item.profile.name}, Age: ${item.profile.age}, 
-                Gender: ${item.profile.gender}, Height: ${item.profile.height}cm, Race: ${item.profile.race}, Income: ${item.profile.income}, Religion: ${item.profile.religion} } <br>`;
-                });
-            } catch (e){
-                page+=e.message;
-                throw e;
-            }
-    }
-    page+='<br><br><a href="/">Home Page</a></body></html>';
-      
-    return page;
-}
+
 
 // Ryan Morgan,
 async function matchResp(result, response){
