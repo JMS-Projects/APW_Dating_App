@@ -61,7 +61,13 @@ app.use(function (req, res, next){
 })
 //Author: Andrew Griscom
 app.get('/', function (req, res){
-    res.render('home');
+    if(!req.session.user){
+        res.render('home');
+    }
+    else{
+
+        res.render('main_layout');
+    }
 });
 
 app.get('/updateU', function(req, res, next)
