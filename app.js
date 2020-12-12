@@ -438,6 +438,7 @@ app.post('/profile', bp.urlencoded({extended: false}) , function(req, res)
 {
    
     let updateDoc = {};
+    updateDoc.profile = {};
     if (req.body.pWord.trim() != '') updateDoc.password = req.body.pWord.trim();
     if (req.body.email.trim() != '') updateDoc.email = req.body.email.trim();
     if (req.body.city.trim() != '') updateDoc.city = req.body.city.trim();
