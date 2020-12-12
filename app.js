@@ -2,7 +2,6 @@ const http = require("http");
 const profile = require("./profile.js");
 const qString = require("querystring");
 const express = require("express");
-const fs = require('fs')
 const session = require("express-session");
 const multer = require("multer");
 const path = require("path");
@@ -10,6 +9,7 @@ const bp = require("body-parser");
 const dbManager = require('./dbManager');
 const User = require("./User.js");
 let app = express();
+const fs = require('fs')
 var postData;
 var postParams;
 
@@ -264,7 +264,6 @@ app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
         let msg = "You failed to log in"
         let entry = {uName: req.body.uName, pWord: req.body.pWord};
         res.render('login', {entry: entry, msg: msg});
-
     } 
     catch (err)
     {
@@ -301,7 +300,7 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
     }
     try
     {
-        let curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.email})
+        let curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.eMail})
 		const userObj = await dbManager.get().collection("users").findOne({username: curUser.username});
 		if(userObj == null)
 		{
@@ -428,11 +427,43 @@ app.get('/profile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing profile page`);
     if(req.session.user.profile != null)
     {
-        res.render('Profile');
+        res.render('profile', {user: req.session.user});
     }
     else{
         res.redirect('/rProfile');
     }
+});
+
+app.post('/profile', bp.urlencoded({extended: false}) , function(req, res)
+{
+   
+    let updateDoc = {};
+    if (req.body.pWord.trim() != '') updateDoc.password = req.body.pWord.trim();
+    if (req.body.email.trim() != '') updateDoc.email = req.body.email.trim();
+    if (req.body.city.trim() != '') updateDoc.city = req.body.city.trim();
+    if (req.body.state.trim() != '') updateDoc.state = req.body.state.trim();
+    if (req.body.name.trim() != '') updateDoc.profile.name = req.body.name.trim();
+    if (req.body.age.trim() != '') updateDoc.profile.age = req.body.age.trim();
+    if (req.body.gender.trim() != '') updateDoc.profile.gender = req.body.gender.trim();
+    if (req.body.height.trim() != '') updateDoc.profile.height = req.body.height.trim();
+    if (req.body.race.trim() != '') updateDoc.profile.race = req.body.race.trim();
+    if (req.body.hobby.trim() != '') updateDoc.profile.hobby = req.body.race.trim();
+    if (req.body.income.trim() != '') updateDoc.profile.income = req.body.income.trim();
+    if (req.body.religion.trim() != '') updateDoc.profile.religion = req.body.religion.trim();
+    try{
+        dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: updateDoc});
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s account information has been updated`);
+        res.redirect('/');
+    }
+    catch (err)
+    {
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with updating ${req.session.user.username}'s account information: ${err}`);
+        res.redirect('/');
+    }
+		    res.redirect('/');
+            
+		
+    	    
 });
 
 //Author: Andrew Griscom
@@ -446,68 +477,37 @@ app.get('/rProfile', function(req, res, next){
         res.redirect('/login');
     }
 });
-
-//Author: Andrew Griscom
-app.post('/rProfile', function(req, res){
-    postData = '';
-    req.on('data', (data) =>{
-	postData+=data;
-    });
-    req.on('end', async ()=>{
-	//Break into functions
-	console.log(postData);
-	if (moveOn(postData)){
-		try{
-
-		    let currProfile = new profile(postParams.name,
-						 postParams.age,
-						 postParams.gender,
-                         postParams.height,
-                         postParams.race,
-                         postParams.hobby,
-						 postParams.income,
-                         postParams.religion);
-
-            req.session.user.profile = currProfile;
-            
-            //update database here
-            res.render('personalP', {profile: req.session.user.profile});
-            
-		 // console.log(result); //log result for viewing
-		} catch (err){
-		    console.log(err.message);
-		  
-		}
-	} else{ //can't move on
-	   res.render('rProfile');
-	}
-    });
-    	    
-});
-//Author: Andrew Griscom
-app.get('/account', function(req, res, next){
-    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing account settings page`);
-    if (req.session.user)
+app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
+    for (prop in req.body)
     {
-        res.render('account', {account: req.session.user});
+        if (req.body[prop] === '')
+        {
+            res.render('rProfile', {msg: "fill out everything"});
+        }
     }
-    else
+    let updateDoc = {};
+    updateDoc.name = req.body.name.trim();
+    updateDoc.age = req.body.age.trim();
+    updateDoc.gender = req.body.gender.trim();
+    updateDoc.height = req.body.height.trim();
+    updateDoc.race = req.body.race.trim();
+    updateDoc.hobby = req.body.hobby.trim();
+    updateDoc.income = req.body.income.trim();
+    updateDoc.religion = req.body.religion.trim();
+    req.session.user.profile = updateDoc;
+    try{
+        dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: {profile: updateDoc}});
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile has been created`);
+        res.redirect('/');
+    }
+    catch (err)
     {
-        res.redirect('/login');
-    }
-    
-});
-//Author: Andrew Griscom
-app.get('/personalP', function(req, res, next){
-    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing personal settings page`);
-    if (req.session.user)
-    {
-        res.render('personalP', {profile: req.session.user.profile})
-    }
-    else{
-        res.redirect('/login');
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with updating ${req.session.user.username}'s account information: ${err}`);
+        res.redirect('/');
     }
 });
+
+
 
 var htmlPath = path.join(__dirname, 'html');
 app.use('/chat', express.static(htmlPath));
@@ -516,93 +516,6 @@ app.use('/chat', express.static(htmlPath));
 app.get('/pfp_upload', function(req, res){
     res.render('pfp_upload');
 })
-//Author: Andrew Griscom
-app.get('/editPr', function(req, res, next){
-    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request to edit personal profile page`);
-    if (req.session.user)
-    {
-        res.render('editPr', {profile: req.session.user.profile});
-    }
-    else
-    {
-        res.redirect('/login');
-    }
-});
-
-//Author: Andrew Griscom
-app.post('/editPr', function(req, res){
-    postData = '';
-    req.on('data', (data) =>{
-	postData+=data;
-    });
-    req.on('end', async ()=>{
-	//Break into functions
-	console.log(postData);
-	if (moveOn(postData)){
-		try{
-            if (req.session.user.profile.name.trim() != '') req.session.user.profile.name = postParams.name.trim();
-            if (req.session.user.profile.age.trim() != '') req.session.user.profile.age = postParams.age.trim();
-            if (req.session.user.profile.gender.trim() != '') req.session.user.profile.gender = postParams.gender.trim();
-            if (req.session.user.profile.height.trim() != '') req.session.user.profile.height = postParams.height.trim();
-            if (req.session.user.profile.race.trim() != '') req.session.user.profile.race = postParams.race.trim();
-            if (req.session.user.profile.hobby.trim() != '') req.session.user.profile.hobby = postParams.hobby.trim();
-            if (req.session.user.profile.income.trim() != '') req.session.user.profile.income = postParams.income.trim();
-            if (req.session.user.profile.religion.trim() != '') req.session.user.profile.religion = postParams.religion.trim();
-
-            
-            res.redirect('/profile');
-		} catch (err){
-		    console.log(err.message);
-		}
-	} else{ //can't move on
-        res.redirect('/profile');
-	}
-    });
-    	    
-});
-
-//Author: Andrew Griscom
-app.get('/editAcc', function(req, res, next){
-    console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request to edit account settings page`);
-    if (req.session.user)
-    {
-        res.render('editAcc', {account: req.session.user});
-    }
-    else
-    {
-        res.redirect('/login');
-    }
-});
-//Author: Andrew Griscom
-app.post('/editAcc', function(req, res){
-    postData = '';
-    req.on('data', (data) =>{
-	postData+=data;
-    });
-    req.on('end', async ()=>{
-	//Break into functions
-	console.log(postData);
-	if (moveOn(postData)){
-		try{
-            if (req.session.user.username.trim() != '') req.session.user.username = postParams.uName.trim();
-            if (req.session.user.password.trim() != '') req.session.user.password = postParams.pWord.trim();
-            if (req.session.user.city.trim() != '') req.session.user.city = postParams.city.trim();
-            if (req.session.user.state.trim() != '') req.session.user.state = postParams.state.trim();
-            if (req.session.user.email.trim() != '') req.session.user.email = postParams.email.trim();
-            
-            
-            
-            res.redirect('/profile');
-		} catch (err){
-		    console.log(err.message);
-		}
-	} else{ //can't move on
-        res.redirect('/profile');
-	}
-    });
-    	    
-});
-
 
 function moveOn(postData){
     let proceed = true;
