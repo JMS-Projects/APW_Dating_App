@@ -1,82 +1,82 @@
-doctype html
-head
+extends main_layout
+block head
   title Profile creator
-form(method='post')
-  h1 Please fill in information about yourself
-  |     Enter your Name 
-  input(name='name')
-  br
-  br
-  |     Enter your Age 
-  input(name='age')
-  br
-  br
-  label(for='gender') Select your Gender
-  select#gender(name='gender')
-    option(value='Male') Male
-    option(value='Female') Female
-    option(value='Other') Other
-  br
-  br
-  |     Enter your height in cm 
-  .slidecontainer
-    input#myRange.slider(type='range' min='100' max='250' value='100' name='height')
-  |     Height: 
-  span#heightS
-  br
-  br
-  label(for='race') Select the race that you most identify as
-  select#race(name='race')
-    option(value='White') White
-    option(value='Black/African American') Black/African American
-    option(value='Asian') Asian
-    option(value='Hispanic') Hispanic
-    option(value='Other') Other
-  br
-  br
-  |     Enter your favorite hobby 
-  input(name='hobby')
-  br
-  br
-  label Select the income range you fall into
-  br
-  br
-  input#less(type='radio' name='income' value='less than $40,000')
-  label(for='less') Less than $40,000 a year
-  br
-  input(type='radio' id='40,000' name='income' value='$40,000')
-  label(for='40,000') Around $40,000 a year
-  br
-  input(type='radio' id='75,000' name='income' value='$75,000')
-  label(for='75,000') Around $75,000 a year
-  br
-  input(type='radio' id='100,000' name='income' value='$100,000')
-  label(for='100,000') Around $100,000 a year
-  br
-  input(type='radio' id='300,000' name='income' value='$300,000')
-  label(for='300,000') Around $300,000 a year
-  br
-  input#more(type='radio' name='income' value='more than $300,000')
-  label(for='more') More than $300,000 a year
-  br
-  br
-  label(for='religion') Enter the religion you most align with
-  select#religion(name='religion')
-    option(value='Christianity') Christianity
-    option(value='Islam') Islam
-    option(value='Hinduism') Hinduism
-    option(value='Buddhism') Buddhism
-    option(value='Other') Other
-    option(value='Not religious') Not religious
-  br
-  br
-  input(type='submit' value='Sumbit')
-  input(type='reset' value='Reset')
-script.
-  var slider = document.getElementById("myRange");
-  var output = document.getElementById("heightS");
-  output.innerHTML = slider.value;
-  slider.oninput = function() {output.innerHTML = this.value;}
-br
-br
-a(href='/') Home Page
+block content
+  form(method='post')
+    h1 Please fill in information about yourself
+    if msg
+      h2 #{msg} 
+    |     Enter your Name 
+    input(name='name')
+    br
+    br
+    |     Enter your Age 
+    input(name='age')
+    br
+    br
+    label(for='gender') Select your Gender
+    select#gender(name='gender')
+      option(value='Male') Male
+      option(value='Female') Female
+      option(value='Other') Other
+    br
+    br
+    |     Enter your height in cm 
+    .slidecontainer
+      input#myRange.slider(type='range' min='100' max='250' value='100' name='height')
+    |     Height: 
+    span#heightS
+    br
+    br
+    label(for='race') Select the race that you most identify as
+    select#race(name='race')
+      option(value='White') White
+      option(value='Black/African American') Black/African American
+      option(value='Asian') Asian
+      option(value='Hispanic') Hispanic
+      option(value='Other') Other
+    br
+    br
+    |     Enter your favorite hobby 
+    input(name='hobby')
+    br
+    br
+    label Select the income range you fall into
+    br
+    br
+    input#less(type='radio' name='income' value='less than $40,000')
+    label(for='less') Less than $40,000 a year
+    br
+    input(type='radio' id='40,000' name='income' value='$40,000')
+    label(for='40,000') Around $40,000 a year
+    br
+    input(type='radio' id='75,000' name='income' value='$75,000')
+    label(for='75,000') Around $75,000 a year
+    br
+    input(type='radio' id='100,000' name='income' value='$100,000')
+    label(for='100,000') Around $100,000 a year
+    br
+    input(type='radio' id='300,000' name='income' value='$300,000')
+    label(for='300,000') Around $300,000 a year
+    br
+    input#more(type='radio' name='income' value='more than $300,000')
+    label(for='more') More than $300,000 a year
+    br
+    br
+    label(for='religion') Enter the religion you most align with
+    select#religion(name='religion')
+      option(value='Christianity') Christianity
+      option(value='Islam') Islam
+      option(value='Hinduism') Hinduism
+      option(value='Buddhism') Buddhism
+      option(value='Other') Other
+      option(value='Not religious') Not religious
+    br
+    br
+    input(type='submit' value='Sumbit')
+    input(type='reset' value='Reset')
+  script.
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("heightS");
+    output.innerHTML = slider.value;
+    slider.oninput = function() {output.innerHTML = this.value;}
