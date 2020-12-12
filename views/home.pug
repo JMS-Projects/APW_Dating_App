@@ -31,7 +31,7 @@ html
                 
             .plinks
                 a(href='/profile')
-                    img(src='https://i.ibb.co/0DHyL5k/1.png' alt='1' border='0' height='400')
+                    img(src='' + pfp alt='1' border='0' height='400' width='400')
                 br
                 p.linktext Profile
             | &nbsp; 
@@ -53,6 +53,10 @@ html
                 br
                 p.linktext Chat
         .button
-            form(method='get' action='/login')
-                input.button(type='submit' value='Login/Register')
+            if trusted
+                form(method='get' action='/logout')
+                    input.button(type='submit' value='Logout')
+            else
+                form(method='get' action='/login')
+                    input.button(type='submit' value='Login/Register')
 

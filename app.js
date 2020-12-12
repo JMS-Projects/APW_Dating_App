@@ -63,11 +63,11 @@ app.use(function (req, res, next){
 //Author: Andrew Griscom
 app.get('/', function (req, res){
     if(!req.session.user){
-        res.render('home', {pfp: "https://i.ibb.co/0DHyL5k/1.png"});
+        res.render('home', {trusted: false, pfp: "https://i.ibb.co/0DHyL5k/1.png"});
     }
     else{
 
-        res.render('main_layout', {pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        res.render('home', {trusted: true, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
 });
 
