@@ -1,7 +1,9 @@
-extends layout
+extends main_layout
 block content
     body
         h2 Search for a Profile
+        if msg
+            h3 #{msg}
         form(method="post")
             select(name="prop")
                 option(value="username") username
@@ -12,6 +14,7 @@ block content
                 option(value="gender") gender
                 option(value="height") height
                 option(value="race") race
+                option(value="hobby") hobby
                 option(value="income") income
                 option(value="religion") religion
             input(name="value")
@@ -24,4 +27,4 @@ block content
                 h3 Search results for #{results.prop}: #{results[results.prop]}
                 -var count=0
                 each item in results.data
-                    p Result #{count+=1}: #{item.username} from #{item.city}, #{item.state}. Profile { Name: #{item.profile.name}, Age: #{item.profile.age}, Gender: #{item.profile.gender}, Height: #{item.profile.height}cm, Race: #{item.profile.race}, Income: #{item.profile.income}, Religion: #{item.profile.religion} }
+                    p Result #{count+=1}: #{item.username} from #{item.city}, #{item.state}. Profile { Name: #{item.profile.name}, Age: #{item.profile.age}, Gender: #{item.profile.gender}, Height: #{item.profile.height}cm, Race: #{item.profile.race}, Hobby: #{item.profile.hobby}, Income: #{item.profile.income}, Religion: #{item.profile.religion} }
