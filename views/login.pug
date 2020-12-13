@@ -1,7 +1,7 @@
-html(lang="en")
-head
+extends main_layout
+block head
   title Dating App Registration
-body
+block content
   form(action='/login' method='post')
     h1 Please fill in your login information
     if msg
