@@ -1,15 +1,16 @@
 const http = require("http");
-const profile = require("./profile.js");
 const qString = require("querystring");
 const express = require("express");
 const session = require("express-session");
-const multer = require("multer");
+const feedback = require('connect-flash') // 3rd party middleware
+const multer = require("multer"); // 3rd party middleware
 const path = require("path");
 const bp = require("body-parser");
-const dbManager = require('./dbManager');
-const User = require("./User.js");
-let app = express();
 const fs = require('fs')
+const profile = require("./profile.js");
+const User = require("./User.js");
+const dbManager = require('./dbManager');
+let app = express();
 var postData;
 var postParams;
 
@@ -48,7 +49,7 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 1 // sessions expire after 1 hour
     }
 }));
-
+app.use(feedback());
 app.use(function (req, res, next){
     if(!req.session.user)
     {
@@ -63,11 +64,11 @@ app.use(function (req, res, next){
 //Author: Andrew Griscom
 app.get('/', function (req, res){
     if(!req.session.user){
-        res.render('home', {trusted: false, pfp: "https://i.ibb.co/0DHyL5k/1.png"});
+        res.render('home', {msg: req.flash('msg'), trusted: false, pfp: "./profile_pictures/default_pfp.png"});
     }
     else{
 
-        res.render('home', {trusted: true, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        res.render('home', {msg: req.flash('msg'),trusted: true, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
 });
 
@@ -83,11 +84,9 @@ app.get('/search', function(req, res, next)
     if (req.session.user)
     {
         res.render('search', {msg: app.locals.msg, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
-        
     }
     else
     {
-        
         res.redirect('/login');
     }
 });
@@ -157,12 +156,13 @@ app.get('/login', function(req, res, next)
 {
     if (!req.session.user)
     {
-        let entry = {uName: '', pWord: ''};
-        res.render('login', {entry: entry});
+        res.render('login', {msg: req.flash('msg')});
     }
     else
     {
+        req.flash('msg', 'You are already logged in');
         res.redirect('/');
+        return;
     }
 });
 
@@ -172,10 +172,11 @@ app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
     {
         if (req.body[prop] === '')
         {
-            res.render('login', {msg: "fill out everything"});
+            req.flash('msg', 'You must fill in all boxes');
+            res.redirect('login');
+            return;
         }
     }
-    
     try
     {
 		const userObj = await dbManager.get().collection("users").findOne({username: req.body.uName});
@@ -185,16 +186,14 @@ app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
 			{
 				console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${userObj.username} logged in successfully`);
                 req.session.user = userObj;
+                req.flash('msg', `Welcome to our dating app: ${req.session.user.username}`);
                 res.redirect('/');
-                // render home page with login success message
-                // let msg = `You logged in successfully as ${req.session.user.username}`
-                // res.render('/', {msg:msg})
+                return;
             }
         }
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${req.body.uName}`);
-        let msg = "You failed to log in"
-        let entry = {uName: req.body.uName, pWord: req.body.pWord};
-        res.render('login', {entry: entry, msg: msg});
+        req.flash('msg', 'Login failed. Try again.')
+        res.redirect('login', {msg: msg});
     } 
     catch (err)
     {
@@ -231,7 +230,7 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
     }
     try
     {
-        let curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.eMail})
+        let curUser = new User({username: req.body.uName, password: req.body.pWord, city: req.body.city, state: req.body.state, email: req.body.eMail, pfp_path: 'default_pfp.png'});
 		const userObj = await dbManager.get().collection("users").findOne({username: curUser.username});
 		if(userObj == null)
 		{
@@ -240,7 +239,7 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
 			{
                 console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${curUser.username} has been registered`);
                 req.session.user = curUser;
-                res.redirect('/')
+                res.redirect('/');
                 // render home page with success message
                 // let msg = `You have successfully registered as ${curUser.username}`
                 // res.render('/', {msg:msg})
@@ -362,12 +361,20 @@ app.post('/match', function(req, res){
 //Author: Andrew Griscom
 app.get('/profile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing profile page`);
-    if(req.session.user.profile != null)
+    if (req.session.user)
     {
-        res.render('profile', {user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        if(req.session.user.profile != null)
+        {
+            res.render('profile', {user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        }
+        else
+        {
+            res.redirect('/rProfile');
+        }
     }
-    else{
-        res.redirect('/rProfile');
+    else
+    {
+        res.redirect('/login');
     }
 });
 
@@ -398,10 +405,6 @@ app.post('/profile', bp.urlencoded({extended: false}) , function(req, res)
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with updating ${req.session.user.username}'s account information: ${err}`);
         res.redirect('/');
     }
-		    res.redirect('/');
-            
-		
-    	    
 });
 
 //Author: Andrew Griscom
