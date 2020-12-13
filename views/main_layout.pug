@@ -6,24 +6,24 @@ head
   link(href='https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap' rel='stylesheet')
   link(href='https://fonts.googleapis.com/css2?family=Yeseva+One&display=swap' rel='stylesheet')
   block head
-body
-  .Banner
-    .img
-    h1 Dating App
-    span.hlinks
-      a(href='/logout') Logout
-      | &nbsp; 
-      | &#10084;
-      | &nbsp;  
-      a(href='/search') Search
-      | &nbsp; 
-      | &#10084;
-      | &nbsp; 
-      a(href='/match') Match
-      | &nbsp; 
-      | &#10084;
-      | &nbsp; 
-      a(href='/chat') Chat
-    a.profilepic(href='/profile')
+.Banner
+  .img
+  h1 Dating App
+  span.hlinks
+    a(href='/logout') Logout
+    | &nbsp; 
+    | &#10084;
+    | &nbsp;  
+    a(href='/search') Search
+    | &nbsp; 
+    | &#10084;
+    | &nbsp; 
+    a(href='/match') Match
+    | &nbsp; 
+    | &#10084;
+    | &nbsp; 
+    a(href='/chat') Chat
+  a.profilepic(href='/profile')
+    block pic
       img(src='' + pfp alt='1' border='0' height='75' width='75')
-    block content
+block content

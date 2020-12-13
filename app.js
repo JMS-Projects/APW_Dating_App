@@ -82,7 +82,7 @@ app.get('/search', function(req, res, next)
 {
     if (req.session.user)
     {
-        res.render('search', {msg: app.locals.msg, pfp: req.session.user.pfp_path});
+        res.render('search', {msg: app.locals.msg, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
         
     }
     else
@@ -134,7 +134,7 @@ app.post('/search', function(req, res){
 		})
             let resultOBJ={data: data, [prop]  : val, prop: prop};
                 
-            res.render('search', {results: resultOBJ});
+            res.render('search', {results: resultOBJ, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
             
                               
             } catch (e){
@@ -272,9 +272,10 @@ app.get('/match', function(req, res, next)
 {
     if (req.session.user)
     {
-        matchResp(null, res).then(
+        res.render('match', {pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        /*matchResp(null, res).then(
         page=> {    res.send(page); }
-        ).catch(next);
+        ).catch(next);*/
     }
     else
     {
@@ -348,9 +349,7 @@ app.post('/match', function(req, res){
             })
             let resultOBJ={data: data, [prop]  : val, prop: prop};
     
-            matchResp(resultOBJ, res).then( page =>
-                            {res.send(page)
-                            });//call the matchPage
+           res.render('match', {results: resultOBJ, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
         } catch (e){
             console.log(e.message);
             res.writeHead(404);
@@ -365,7 +364,7 @@ app.get('/profile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing profile page`);
     if(req.session.user.profile != null)
     {
-        res.render('profile', {user: req.session.user});
+        res.render('profile', {user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
     else{
         res.redirect('/rProfile');
@@ -410,7 +409,7 @@ app.get('/rProfile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for creating profile page`);
     if (req.session.user)
     {
-        res.render('rProfile');
+        res.render('rProfile', {pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
     else{
         res.redirect('/login');
@@ -421,7 +420,7 @@ app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
     {
         if (req.body[prop] === '')
         {
-            res.render('rProfile', {msg: "fill out everything"});
+            res.render('rProfile', {msg: "fill out everything", pfp: `./profile_pictures/${req.session.user.pfp_path}`});
         }
     }
     let updateDoc = {};
@@ -468,105 +467,6 @@ function moveOn(postData){
     return proceed;
 }
 
-
-
-// Ryan Morgan,
-async function matchResp(result, response){
-    let page = '<html><head><title>Dating Match Page</title>'+
-    '<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">'+
-    '<script src="https://code.jquery.com/jquery-1.12.4.js"></script>' + 
-    '<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>' + 
-    '<script>' +
-    'var minage;'+
-    'var maxage;'+
-    'var minheight;'+
-    'var maxheight;'+
-    '$( function() {'+
-    '   $( "#age-range" ).slider({'+
-    '       range: true, min: 18, max: 100, values: [ 18, 35 ], slide: function( event, ui ) {'+
-    '           minage = ui.values[0];'+
-    '           maxage = ui.values[1];'+
-    '           $("#minAge").val(minage);'+
-    '           $("#maxAge").val(maxage);'+
-    '       }'+
-    '   });'+
-    '   minage = $("#age-range").slider("values", 0);'+
-    '   maxage = $("#age-range").slider("values", 1);'+
-    '   $("#minAge").val(minage);'+
-    '   $("#maxAge").val(maxage);'+
-    '   $( "#height-range" ).slider({'+
-    '       range: true, min: 100, max: 300, values: [ 150, 200 ], slide: function( event, ui ) {'+
-    '           minheight = ui.values[0];'+
-    '           maxheight = ui.values[1];'+
-    '           $("#minHeight").val(minheight);'+
-    '           $("#maxHeight").val(maxheight);'+
-    '       }'+
-    '   });'+
-    '   minheight = $("#height-range").slider("values", 0);'+
-    '   maxheight = $("#height-range").slider("values", 1);'+
-    '   $("#minHeight").val(minheight);'+
-    '   $("#maxHeight").val(maxheight);'+
-    '});'+
-    '</script>'+
-    '</head>'+
-    '<body> <form method="post">'+
-    '<h1>Fill out the following information to make a match</h1>'+
-    'Prefered Gender:'+
-        '<select name="gender" size="1">'+
-        '<option value="n" selected="selected"> No Preference </option>'+
-        '<option value="Male"> Male </option>'+
-        '<option value="Female"> Female </option>'+
-        '<option value="Other"> Other </option>'+
-        '</select> <br>'+
-    'Prefered Race:'+
-        '<select name="race" size="1">'+
-        '<option value="n" selected="selected"> No Preference </option>'+
-        '<option value="White"> White </option>'+
-        '<option value="Black/African American"> Black/African American </option>'+
-        '<option value="Asian"> Asian </option>'+
-        '<option value="Hispanic"> Hispanic </option>'+
-        '<option value="Other"> Other </option>'+
-        '</select> <br>'+
-    'Prefered Age Range: '+
-        'min<input type="text" id="minAge" name="minAge" readonly style="width:25px;">'+
-        '<div id="age-range" style="width:150px; display:inline-block; margin-left:10px; margin-right:10px;"></div>'+
-        'max<input type="text" id="maxAge" name="maxAge" readonly style="width:25px;"> <br>'+
-    'Prefered Height Range in cm: '+
-        'min<input type="text" id="minHeight" name="minHeight" readonly style="width:30px;"> '+
-        '<div id="height-range" style="width:150px; display:inline-block; margin-left:10px; margin-right:10px;"></div>'+
-        'max<input type="text" id="maxHeight" name="maxHeight" readonly style="width:30px;""> <br>'+
-    'Prefered Religion:'+
-        '<select name="religion" size="1">'+
-        '<option value="n" selected="selected"> No Preference </option>'+
-        '<option value="Christianity"> Christianity </option>'+
-        '<option value="Islam"> Islam </option>'+
-        '<option value="Hinduism"> Hinduism </option>'+
-        '<option value="Buddhism"> Buddhism </option>'+
-        '<option value="Other"> Other </option>'+
-        '<option value="Not religious"> Not religious </option>'+
-        '</select> <br>'+
-    '<script>console.log(min, max);</script>'+
-    '<input type="submit" value="Search!">' +
-    '<input type="reset" value="Clear">'+
-    '</form>';
-
-        if (result) {
-            page+=`<h2>Your Matches:</h2>`
-        let count = 0;
-        //the await must be wrapped in a try/catch in case the promise rejects
-        try{
-        await result.data.forEach((item) =>{
-            page+=`Match ${++count}: ${item.profile.name} age ${item.profile.age} <button onclick="window.location.href='/chat';">Chat Now!</button><br>`;
-            });
-        } catch (e){
-            page+=e.message;
-            throw e;
-        }
-        }
-
-    page +='<br><br><a href="/">Home Page</a></body></html>';
-    return page;
-}
 
 
 app.get('/pfp_upload/complete', function(req, res){

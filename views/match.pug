@@ -1,0 +1,95 @@
+extends main_layout
+block head
+  title Dating Match Page
+  link(rel='stylesheet' href='//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css')
+  script(src='https://code.jquery.com/jquery-1.12.4.js')
+  script(src='https://code.jquery.com/ui/1.12.1/jquery-ui.js')
+  script.
+    var minage;
+    var maxage;
+    var minheight;
+    var maxheight;
+    $( function() {
+    $( "#age-range" ).slider({
+    range: true, min: 18, max: 100, values: [ 18, 35 ], slide: function( event, ui ) {
+    minage = ui.values[0];
+    maxage = ui.values[1];
+    $("#minAge").val(minage);
+    $("#maxAge").val(maxage);
+    }
+    });
+    minage = $("#age-range").slider("values", 0);
+    maxage = $("#age-range").slider("values", 1);
+    $("#minAge").val(minage);
+    $("#maxAge").val(maxage);
+    $( "#height-range" ).slider({
+    range: true, min: 100, max: 300, values: [ 150, 200 ], slide: function( event, ui ) {
+    minheight = ui.values[0];
+    maxheight = ui.values[1];
+    $("#minHeight").val(minheight);
+    $("#maxHeight").val(maxheight);
+    }
+    });
+    minheight = $("#height-range").slider("values", 0);
+    maxheight = $("#height-range").slider("values", 1);
+    $("#minHeight").val(minheight);
+    $("#maxHeight").val(maxheight);
+    });
+block content
+    form(method='post')
+        h1 Fill out the following information to make a match
+        |     Prefered Gender:
+        select(name='gender' size='1')
+            option(value='n' selected='selected')  No Preference 
+            option(value='Male')  Male 
+            option(value='Female')  Female 
+            option(value='Other')  Other 
+        br
+        |     Prefered Race:
+        select(name='race' size='1')
+            option(value='n' selected='selected')  No Preference 
+            option(value='White')  White 
+            option(value='Black/African American')  Black/African American 
+            option(value='Asian')  Asian 
+            option(value='Hispanic')  Hispanic 
+            option(value='Other')  Other 
+        br
+        |     Prefered Age Range: 
+        |         min
+        input#minAge(type='text' name='minAge' readonly='' style='width:25px;')
+        #age-range(style='width:150px; display:inline-block; margin-left:10px; margin-right:10px;')
+        |         max
+        input#maxAge(type='text' name='maxAge' readonly='' style='width:25px;')
+        br
+        |     Prefered Height Range in cm: 
+        |         min
+        input#minHeight(type='text' name='minHeight' readonly='' style='width:30px;')
+        #height-range(style='width:150px; display:inline-block; margin-left:10px; margin-right:10px;')
+        |         max
+        input#maxHeight(type='text' name='maxHeight' readonly='' style='width:30px;')
+        br
+        |     Prefered Religion:
+        select(name='religion' size='1')
+            option(value='n' selected='selected')  No Preference 
+            option(value='Christianity')  Christianity 
+            option(value='Islam')  Islam 
+            option(value='Hinduism')  Hinduism 
+            option(value='Buddhism')  Buddhism 
+            option(value='Other')  Other 
+            option(value='Not religious')  Not religious 
+        br
+        script.
+            console.log(min, max);
+        input(type='submit' value='Search!')
+        input(type='reset' value='Clear')
+
+        if results
+            h2 Your Matches:
+            -let count=0
+            each item in results.data
+                p Match #{++count}: #{item.profile.name} age #{item.profile.age} 
+                button(onclick="window.location.href='/chat';") Chat Now!
+                br
+
+
+  
