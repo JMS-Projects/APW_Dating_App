@@ -1,21 +1,21 @@
 extends main_layout
 block head
-  title Dating App Registration
+  title Login
 block content
-  form(action='/login' method='post')
-    h1 Please fill in your login information
-    if msg
-      h2 #{msg}
-    |     Enter your username 
-    input(type="text" id="uName" name="uName" value= '' + entry.uName)
-    br
-    br
-    |     Enter your password 
-    input(type="password" id="pWord" name="pWord" value= '' + entry.pWord)
-    br
-    br
-    input(type='submit' value='Login' method='post')
-  br
-  a(href='/') Home Page
-  br
-  a(href='/register') Register here
+  .login_container
+    .login_header
+      h2 Login
+    form(action='/login' method='post')
+      if msg
+        h2 #{msg}
+      label.login_label(for='uName') Enter your username
+      br
+      input.login_textbox(type="text" id="uName" name="uName")
+      br
+      label.login_label(for='pWord') Enter your password 
+      br
+      input.login_textbox(type="password" id="pWord" name="pWord")
+      br
+      input.login_button(type='submit' value='Login' method='post')
+    form(action='/register' method='get')
+      input.login_button(type='submit' value='Register' method='get')
