@@ -346,7 +346,10 @@ app.post('/match', function(req, res){
             await cursor.forEach((item)=>{
                 let curItem={};   
                 curItem = new User({username: item.username, password: item.password, email: item.email, city: item.city, state: item.state, profile: item.profile});
-                data.push(curItem);
+                // Check to see if profile pulled from database is not the profile of current user
+                if (item.username != req.session.user.username){
+                    data.push(curItem);
+                }
             })
             let resultOBJ={data: data, [prop]  : val, prop: prop};
     
@@ -382,9 +385,9 @@ app.post('/profile', bp.urlencoded({extended: false}) , function(req, res)
     if (req.body.city.trim() != '') updateDoc.city = req.body.city.trim();
     if (req.body.state.trim() != '') updateDoc.state = req.body.state.trim();
     if (req.body.name.trim() != '') updateDoc.profile.name = req.body.name.trim();
-    if (req.body.age.trim() != '') updateDoc.profile.age = req.body.age.trim();
+    if (req.body.age.trim() != '') updateDoc.profile.age = parseFloat(req.body.age.trim());
     if (req.body.gender.trim() != '') updateDoc.profile.gender = req.body.gender.trim();
-    if (req.body.height.trim() != '') updateDoc.profile.height = req.body.height.trim();
+    if (req.body.height.trim() != '') updateDoc.profile.height = parseFloat(req.body.height.trim());
     if (req.body.race.trim() != '') updateDoc.profile.race = req.body.race.trim();
     if (req.body.hobby.trim() != '') updateDoc.profile.hobby = req.body.race.trim();
     if (req.body.income.trim() != '') updateDoc.profile.income = req.body.income.trim();
@@ -426,9 +429,9 @@ app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
     }
     let updateDoc = {};
     updateDoc.name = req.body.name.trim();
-    updateDoc.age = req.body.age.trim();
+    updateDoc.age = parseFloat(req.body.age.trim());
     updateDoc.gender = req.body.gender.trim();
-    updateDoc.height = req.body.height.trim();
+    updateDoc.height = parseFloat(req.body.height.trim());
     updateDoc.race = req.body.race.trim();
     updateDoc.hobby = req.body.hobby.trim();
     updateDoc.income = req.body.income.trim();
