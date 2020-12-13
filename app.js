@@ -117,7 +117,7 @@ app.post('/search', function(req, res){
             } else if (prop == "name") {
                 regVal = new RegExp(`^${val}+`);
                 searchDoc = { [`profile.${prop}`] : regVal};
-            } else if (prop == "city" || prop == "state"){
+            } else if (prop == "city" || prop == "state" || prop == "email"){
                 searchDoc = { [prop] : val};
             } else {
                 searchDoc = { [`profile.${prop}`] : val};
