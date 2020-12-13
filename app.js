@@ -130,6 +130,7 @@ app.post('/search', function(req, res){
 		await cursor.forEach((item)=>{
 		    let curItem={};   
             curItem = new User({username: item.username, password: item.password, email: item.email, city: item.city, state: item.state, profile: item.profile});
+            //curItem = new User({username: item.username, password: item.password, email: item.email, city: item.city, state: item.state, profile: item.profile.name,  });
 		    data.push(curItem);
 		})
             let resultOBJ={data: data, [prop]  : val, prop: prop};
