@@ -157,7 +157,8 @@ app.get('/login', function(req, res, next)
 {
     if (!req.session.user)
     {
-        res.render('login', {msg: req.flash('msg')});
+        res.render('login', {pfp: "./profile_pictures/default_pfp.png", msg: req.flash('msg')});
+        return;
     }
     else
     {
@@ -194,15 +195,15 @@ app.post('/login', bp.urlencoded({extended: false}), async (req, res) =>
         }
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Failed login attempt for ${req.body.uName}`);
         req.flash('msg', 'Login failed. Try again.')
-        res.redirect('login', {msg: msg});
+        res.redirect('/login');
+        return;
     } 
     catch (err)
     {
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with logging in: ${err.message}`);
-        res.end();
-        // render login page with error message
-        // let msg = "You failed to log in"
-        // res.render('/login', {msg:msg})
+        req.flash('msg', 'Login failed. Try again.')
+        res.redirect('/login');
+        return;
     }	    
 });
 

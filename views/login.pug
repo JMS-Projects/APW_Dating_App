@@ -7,7 +7,8 @@ block content
       h2 Login
     form(action='/login' method='post')
       if msg
-        h2 #{msg}
+        h3.message #{msg}
+        br
       label.login_label(for='uName') Enter your username
       br
       input.login_textbox(type="text" id="uName" name="uName")

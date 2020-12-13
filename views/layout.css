@@ -95,6 +95,7 @@ p {
 .login_label{
     font-size: 26px;
 }
+
 .login_textbox{
     width: 50%;
     height: 25px;
@@ -103,13 +104,21 @@ p {
     background: #FF6767;
     border: 0;
 }
+
 .login_button{
     width: 40%;
     height: 25px;
     margin: 6px;
     font-size: 18px;
     border-radius: 50%;
+    color: #FF4A4A;
 }
 
+.message{
+    width: 50%;
+    background: green;
+    font-size: 20px;
+    text-align: center;
+    display: inline-block;
+}
 
-    
