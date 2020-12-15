@@ -157,7 +157,7 @@ app.get('/login', function(req, res, next)
 {
     if (!req.session.user)
     {
-        res.render('login', {pfp: "./profile_pictures/default_pfp.png", msg: req.flash('msg')});
+        res.render('login', {trusted: false, pfp: "./profile_pictures/default_pfp.png", msg: req.flash('msg')});
         return;
     }
     else
