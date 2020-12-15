@@ -387,7 +387,7 @@ app.get('/profile', function(req, res, next){
     }
 });
 
-app.post('/profile', bp.urlencoded({extended: false}) , function(req, res)
+app.post('/profile', bp.urlencoded({extended: false}) , async function(req, res)
 {
    
     let updateDoc = {};
@@ -401,13 +401,15 @@ app.post('/profile', bp.urlencoded({extended: false}) , function(req, res)
     if (req.body.gender.trim() != '') updateDoc.profile.gender = req.body.gender.trim();
     if (req.body.height.trim() != '') updateDoc.profile.height = parseFloat(req.body.height.trim());
     if (req.body.race.trim() != '') updateDoc.profile.race = req.body.race.trim();
-    if (req.body.hobby.trim() != '') updateDoc.profile.hobby = req.body.race.trim();
+    if (req.body.hobby.trim() != '') updateDoc.profile.hobby = req.body.hobby.trim();
     if (req.body.income.trim() != '') updateDoc.profile.income = req.body.income.trim();
     if (req.body.religion.trim() != '') updateDoc.profile.religion = req.body.religion.trim();
     try{
         dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: updateDoc});
+        req.session.user = await dbManager.get().collection("users").findOne({username: req.session.user.username});
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s account information has been updated`);
-        res.redirect('/');
+        req.flash('msg', 'Profile has been updated');
+        res.redirect('/profile');
     }
     catch (err)
     {
@@ -521,7 +523,6 @@ app.post('/pfp_upload', function(req, res){
             console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile picture has been updated`);
             res.redirect('/pfp_upload/complete');
         }
-        
     });
 });
 
