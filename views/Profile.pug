@@ -1,8 +1,10 @@
 extends main_layout
 block head
+  // Author:Andrew Griscom
   title Profile
 block content
   if msg
+      .flashMsg
         h1.message #{msg}
         br
   .pUpload
