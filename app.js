@@ -244,8 +244,8 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
 			{
                 console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${curUser.username} has been registered`);
                 req.session.user = curUser;
-                req.flash('msg', `You have successfully registered as ${curUser.username}`)
-                res.redirect('/');
+                req.flash('msg', `You have successfully registered as ${curUser.username}. Now tell us a bit about yourself`)
+                res.redirect('/rProfile');
                 return;
 			}
 			else
