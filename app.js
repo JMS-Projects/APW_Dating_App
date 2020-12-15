@@ -83,7 +83,7 @@ app.get('/search', function(req, res, next)
 {
     if (req.session.user)
     {
-        res.render('search', {msg: app.locals.msg, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        res.render('search', {trusted: true, msg: app.locals.msg, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
     else
     {
@@ -134,7 +134,7 @@ app.post('/search', function(req, res){
 		})
             let resultOBJ={data: data, [prop]  : val, prop: prop};
                 
-            res.render('search', {results: resultOBJ, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+            res.render('search', {trusted: true, results: resultOBJ, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
             
                               
             } catch (e){
@@ -277,7 +277,7 @@ app.get('/match', function(req, res, next)
 {
     if (req.session.user)
     {
-        res.render('match', {pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        res.render('match', {trusted: true, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
         /*matchResp(null, res).then(
         page=> {    res.send(page); }
         ).catch(next);*/
@@ -357,7 +357,7 @@ app.post('/match', function(req, res){
             })
             let resultOBJ={data: data, [prop]  : val, prop: prop};
     
-           res.render('match', {results: resultOBJ, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+           res.render('match', {trusted: true, results: resultOBJ, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
         } catch (e){
             console.log(e.message);
             res.writeHead(404);
@@ -374,7 +374,7 @@ app.get('/profile', function(req, res, next){
     {
         if(req.session.user.profile != null)
         {
-            res.render('profile', {msg: req.flash('msg'), user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+            res.render('profile', {trusted: true, msg: req.flash('msg'), user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
         }
         else
         {
@@ -424,7 +424,7 @@ app.get('/rProfile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for creating profile page`);
     if (req.session.user)
     {
-        res.render('rProfile', {msg: req.flash('msg'), pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        res.render('rProfile', {trusted: true, msg: req.flash('msg'), pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
     else{
         res.redirect('/login');
@@ -435,7 +435,7 @@ app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
     {
         if (req.body[prop] === '')
         {
-            res.render('rProfile', {msg: "fill out everything", pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+            res.render('rProfile', {trusted: true, msg: "fill out everything", pfp: `./profile_pictures/${req.session.user.pfp_path}`});
             req.flash('msg', "fill out everything");
             res.redirect('/rProfile');
             return;
@@ -486,7 +486,7 @@ function moveOn(postData){
 app.get('/pfp_upload', function(req, res){
     if (req.session.user)
     {
-        res.render('pfp_upload', {msg: req.flash('msg')});
+        res.render('pfp_upload', {trusted: true, msg: req.flash('msg')});
         return;
     }
     else
