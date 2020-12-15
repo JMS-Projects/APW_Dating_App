@@ -211,12 +211,14 @@ app.get('/register', function(req, res, next)
 {
     if (req.session.user)
     {
+        req.flash('msg', 'You are already logged in')
         res.redirect('/');
+        return;
     }
     else
     {
-        let entry = {uName: '', pWord: '', city: '', state: '', eMail: ''};
-        res.render('register', {entry: entry})
+        res.render('register', {pfp: "./profile_pictures/default_pfp.png", msg: req.flash('msg')})
+        return;
     }
 });
 
@@ -226,8 +228,9 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
     {
         if (req.body[prop] === '')
         {
-            let msg = "You need to fill out all fields"
-            res.render('register', {msg: msg, entry: req.body});
+            req.flash('msg', 'You need to fill out all fields')
+            res.redirect('/register')
+            return;
         }
     }
     try
@@ -241,31 +244,32 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
 			{
                 console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${curUser.username} has been registered`);
                 req.session.user = curUser;
+                req.flash('msg', `You have successfully registered as ${curUser.username}`)
                 res.redirect('/');
-                // render home page with success message
-                // let msg = `You have successfully registered as ${curUser.username}`
-                // res.render('/', {msg:msg})
+                return;
 			}
 			else
 			{
                 console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. Mongo failed to insert ${curUser.username} into the database`);
-                let msg = "There was an error with inserting your account into the database";
-                res.render('register', {entry: req.body, msg: msg});
+                req.flash('msg', "There was an error with inserting your account into the database");
+                res.redirect('/register');
+                return;
 			}
         }
         else
         {
             console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Registration failed. ${curUser.username} already exists in the database`);
-            let msg = "That username already exists."
-            res.render('register', {entry: req.body, msg: msg});
-
+            req.flash('msg', "That username already exists");
+            res.redirect('/register');
+            return;
         }
     } 
     catch (err)
     {
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with user creation or registration: ${err.message}`);
-        let msg = "There was an error with your registration";
-        res.render('register', {entry: req.body, msg: msg});
+        req.flash('msg', "There was an error with your registration");
+        res.redirect('/register');
+        return;
     }
 });
 
@@ -370,7 +374,7 @@ app.get('/profile', function(req, res, next){
     {
         if(req.session.user.profile != null)
         {
-            res.render('profile', {user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+            res.render('profile', {msg: req.flash('msg'), user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
         }
         else
         {
@@ -417,7 +421,7 @@ app.get('/rProfile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for creating profile page`);
     if (req.session.user)
     {
-        res.render('rProfile', {pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        res.render('rProfile', {msg: req.flash('msg'), pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
     else{
         res.redirect('/login');
@@ -429,6 +433,8 @@ app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
         if (req.body[prop] === '')
         {
             res.render('rProfile', {msg: "fill out everything", pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+            req.flash('msg', "fill out everything");
+            res.redirect('/rProfile');
         }
     }
     let updateDoc = {};
@@ -444,12 +450,14 @@ app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
     try{
         dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: {profile: updateDoc}});
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile has been created`);
-        res.redirect('/');
+        req.flash('msg', 'Your profile has been created')
+        res.redirect('/profile');
     }
     catch (err)
     {
-        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with updating ${req.session.user.username}'s account information: ${err}`);
-        res.redirect('/');
+        console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with creating ${req.session.user.username}'s profile: ${err}`);
+        req.flash('msg', 'There was an error with creating your profile. Try again');
+        res.redirect('/rProfile');
     }
 });
 
