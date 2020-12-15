@@ -2,6 +2,11 @@ extends main_layout
 block head
   title Profile
 block content
+  if msg
+        h1.message #{msg}
+        br
+  .pUpload
+    a(href='/pfp_upload') Upload a profile picture here!
   .profile_container
     .profile_header
       h2 Your Account Settings

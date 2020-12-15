@@ -1,0 +1,35 @@
+extends main_layout
+block head
+  title Search
+block content
+  .rprofile_container
+    .rprofile_header
+        h2 Search for a Profile!
+
+    if msg
+        h3 #{msg}
+    br
+    form(method="post")
+        select(name="prop")
+            option(value="username") username
+            option(value="email") email
+            option(value="city") city
+            option(value="state") state
+            option(value="name") name
+            option(value="age") age
+            option(value="gender") gender
+            option(value="height") height
+            option(value="race") race
+            option(value="hobby") hobby
+            option(value="religion") religion
+        input(name="value")
+        br
+        input(type="submit" value="Search!")
+        |
+        input(type="reset" value="Clear!")
+
+        if results
+            h3 Search results for #{results.prop}: #{results[results.prop]}
+            -var count=0
+            each item in results.data
+                p Result #{count+=1}: #{item.username} from #{item.city}, #{item.state}. Profile { Name: #{item.profile.name}, Age: #{item.profile.age}, Gender: #{item.profile.gender}, Height: #{item.profile.height}cm, Race: #{item.profile.race}, Hobby: #{item.profile.hobby}, Income: #{item.profile.income}, Religion: #{item.profile.religion} }
