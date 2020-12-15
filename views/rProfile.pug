@@ -5,7 +5,8 @@ block content
   form(method='post')
     h1 Please fill in information about yourself
     if msg
-      h2 #{msg} 
+      h2.message #{msg} 
+      br
     |     Enter your Name 
     input(name='name')
     br

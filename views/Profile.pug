@@ -5,6 +5,9 @@ block content
   form(method='post')  
     h1 Your Account Setting
     p To edit your information just change the attributes you want.
+    if msg
+      h3.message #{msg}
+      br
     |         User Name:   
     input(type='text' name='uName' value=user.username readonly)
     br
