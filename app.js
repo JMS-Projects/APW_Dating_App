@@ -422,11 +422,16 @@ app.post('/profile', bp.urlencoded({extended: false}) , async function(req, res)
 //Author: Andrew Griscom
 app.get('/rProfile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for creating profile page`);
-    if (req.session.user)
+    if (req.session.user && req.session.user.profile == null)
     {
         res.render('rProfile', {msg: req.flash('msg'), pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
+    else if(req.session.user.profile != null){
+        req.flash('msg', 'You have already created a profile! You can edit your profile here.');
+        res.redirect('/profile');
+    }    
     else{
+        
         res.redirect('/login');
     }
 });
