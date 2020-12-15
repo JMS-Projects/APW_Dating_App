@@ -1,49 +1,51 @@
-doctype html
-html(lang="en")
-    head
-        title="Registration"
+extends main_layout
+block head
+    title="Registration"
+block content 
     body
-    h1 Register
-    if msg
-        h3.message #{msg}
-    form(action="/register" method="post")
-        fieldset(style="display: inline-block")
-            legend Fill out to register
-            table
-                tr
-                    td
-                        | Username:
-                    td
-                        input(type="text" id="uName" name="uName")
+        .reg_container
+            .reg_header
+                h1 Register
+            if msg
+                h3.message #{msg}
+            form(action="/register" method="post")
+                table(style="width: 100%")
+                    colgroup
+                        col(span="2" width="50%")
+                    tr
+                        td
+                            | Username:
+                        td
+                            input.reg_textbox(type="text" id="uName" name="uName")
 
-                tr
-                    td
-                        | Password:
-                    td
-                        input(type="password" id="pWord" name="pWord")
+                    tr
+                        td
+                            | Password:
+                        td
+                            input.reg_textbox(type="password" id="pWord" name="pWord")
 
-                tr
-                    td
-                        | Email:
-                    td
-                        input(type="text" id="eMail" name="eMail")
+                    tr
+                        td
+                            | Email:
+                        td
+                            input.reg_textbox(type="text" id="eMail" name="eMail")
 
-                tr
-                    td
-                        | City:
-                    td
-                        input(type="text" id="city" name="city")
+                    tr
+                        td
+                            | City:
+                        td
+                            input.reg_textbox(type="text" id="city" name="city")
 
-                tr
-                    td
-                        | State:
-                    td
-                        input(type="text" id="state" name="state")
-                tr
-                    td
-                        input(type="submit" value="Register" method="post")
-                    td
-                        input(type="reset" value="Clear")
+                    tr
+                        td
+                            | State:
+                        td
+                            input.reg_textbox(type="text" id="state" name="state")
+                    tr
+                        td
+                            input.reg_button(type="submit" value="Register" method="post")
+                        td
+                            input.reg_button(type="reset" value="Clear")
 
 
 
