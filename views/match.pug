@@ -87,9 +87,8 @@ block content
             h2 Your Matches:
             -let count=0
             each item in results.data
-                p Match #{++count}: #{item.profile.name} age #{item.profile.age} 
-                button(onclick="window.location.href='/chat';") Chat Now!
-                br
+                img(src=`./profile_pictures/${item.pfp_path}` alt='Profile Picture' border='0' height='75' width='75')
+                p Match #{++count}: #{item.profile.name} age #{item.profile.age}, favorite hobby: #{item.profile.hobby}
 
 
   
