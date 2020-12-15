@@ -235,4 +235,45 @@ p {
     font-size: 20px;
 }
 
+.matches_h{
+    background: #600000;
+    text-align: center;
+    line-height: 1;
+}
 
+.matches_h2{
+    background: #600000;
+    text-align: center;
+    line-height: 1;
+}
+
+.matches_input_container{
+    background: #C50D0D;
+    color: #ffffff;
+    width: 600px;
+    margin: auto;
+    line-height: 2;
+}
+
+.matches_text{
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.matches_container{
+    background: #C50D0D;
+    color: #ffffff;
+    width: 600px;
+    margin: auto;
+}
+
+.matches_header{
+    background: #600000;
+}
+.matches_img{
+    float: left;
+}
+.matches_body{
+    display: inline-block;
+    margin-left: 5px;
+}
