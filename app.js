@@ -414,7 +414,8 @@ app.post('/profile', bp.urlencoded({extended: false}) , async function(req, res)
     catch (err)
     {
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with updating ${req.session.user.username}'s account information: ${err}`);
-        res.redirect('/');
+        req.flash('msg', 'There was an error with updating your information. Try again.');
+        res.redirect('/profile');
     }
 });
 
@@ -437,6 +438,7 @@ app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
             res.render('rProfile', {msg: "fill out everything", pfp: `./profile_pictures/${req.session.user.pfp_path}`});
             req.flash('msg', "fill out everything");
             res.redirect('/rProfile');
+            return;
         }
     }
     let updateDoc = {};
@@ -469,10 +471,6 @@ var htmlPath = path.join(__dirname, 'html');
 app.use('/chat', express.static(htmlPath));
 
 
-app.get('/pfp_upload', function(req, res){
-    res.render('pfp_upload');
-})
-
 function moveOn(postData){
     let proceed = true;
     postParams = qString.parse(postData);
@@ -485,28 +483,36 @@ function moveOn(postData){
     return proceed;
 }
 
-
-
-app.get('/pfp_upload/complete', function(req, res){
-    res.render('pfp_upload', {msg: app.locals.msg, file: app.locals.file});
-});
+app.get('/pfp_upload', function(req, res){
+    if (req.session.user)
+    {
+        res.render('pfp_upload', {msg: req.flash('msg')});
+        return;
+    }
+    else
+    {
+        res.redirect('/login');
+        return;
+    }
+})
 
 app.post('/pfp_upload', function(req, res){
     upload(req, res, (err)=>{
         // errors
         if(err){
-            app.locals.msg = err;
-            res.render('/pfp_upload', {msg: err});
+            console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] There was an error with uploading ${req.session.user.username}'s profile picture: ${err}`);
+            req.flash('msg', "There was an error with uploading your picture:");
+            res.redirect('/pfp_upload');
+            return;
         }
         // no file selected
         if(req.file == undefined){
-            app.locals.msg = 'Error: No file selected';
+            req.flash('msg', 'No image selected');
             res.redirect('/pfp_upload');
+            return;
         }
         // successful upload
         else{
-            app.locals.msg = 'File uploaded';
-            app.locals.file = `/profile_pictures/${req.file.filename}`;
             // in this case, we delete the picture in the server's file system
             if (req.session.user.pfp_path)
             {
@@ -514,14 +520,15 @@ app.post('/pfp_upload', function(req, res){
                 fs.unlink(path, (err) => {
                 if (err) 
                 {
-                    console.error(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile picture upload has run into an error: ${err}`);
-                    return;
+                    console.error(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile picture deletion has run into an error: ${err}`);
                 }});
             }
             req.session.user.pfp_path = req.file.filename;
             dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: {pfp_path: req.file.filename}});
             console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile picture has been updated`);
-            res.redirect('/pfp_upload/complete');
+            req.flash('msg', 'Profile picture uploaded successfully');
+            res.redirect('/profile');
+            return;
         }
     });
 });
