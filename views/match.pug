@@ -37,58 +37,62 @@ block head
     });
 block content
     form(method='post')
-        h1 Fill out the following information to make a match
-        |     Prefered Gender:
-        select(name='gender' size='1')
-            option(value='n' selected='selected')  No Preference 
-            option(value='Male')  Male 
-            option(value='Female')  Female 
-            option(value='Other')  Other 
-        br
-        |     Prefered Race:
-        select(name='race' size='1')
-            option(value='n' selected='selected')  No Preference 
-            option(value='White')  White 
-            option(value='Black/African American')  Black/African American 
-            option(value='Asian')  Asian 
-            option(value='Hispanic')  Hispanic 
-            option(value='Other')  Other 
-        br
-        |     Prefered Age Range: 
-        |         min
-        input#minAge(type='text' name='minAge' readonly='' style='width:25px;')
-        #age-range(style='width:150px; display:inline-block; margin-left:10px; margin-right:10px;')
-        |         max
-        input#maxAge(type='text' name='maxAge' readonly='' style='width:25px;')
-        br
-        |     Prefered Height Range in cm: 
-        |         min
-        input#minHeight(type='text' name='minHeight' readonly='' style='width:30px;')
-        #height-range(style='width:150px; display:inline-block; margin-left:10px; margin-right:10px;')
-        |         max
-        input#maxHeight(type='text' name='maxHeight' readonly='' style='width:30px;')
-        br
-        |     Prefered Religion:
-        select(name='religion' size='1')
-            option(value='n' selected='selected')  No Preference 
-            option(value='Christianity')  Christianity 
-            option(value='Islam')  Islam 
-            option(value='Hinduism')  Hinduism 
-            option(value='Buddhism')  Buddhism 
-            option(value='Other')  Other 
-            option(value='Not religious')  Not religious 
-        br
-        script.
-            console.log(min, max);
-        input(type='submit' value='Search!')
-        input(type='reset' value='Clear')
+        .matches_input_container
+            .matches_h
+                h1 Fill out the following information to make a match
+            .matches_text
+                |     Prefered Gender:
+                select(name='gender' size='1')
+                    option(value='n' selected='selected')  No Preference 
+                    option(value='Male')  Male 
+                    option(value='Female')  Female 
+                    option(value='Other')  Other 
+                br
+                |     Prefered Race:
+                select(name='race' size='1')
+                    option(value='n' selected='selected')  No Preference 
+                    option(value='White')  White 
+                    option(value='Black/African American')  Black/African American 
+                    option(value='Asian')  Asian 
+                    option(value='Hispanic')  Hispanic 
+                    option(value='Other')  Other 
+                br
+                |     Prefered Age Range: 
+                |         min
+                input#minAge(type='text' name='minAge' readonly='' style='width:25px;')
+                #age-range(style='width:150px; display:inline-block; margin-left:10px; margin-right:10px;')
+                |         max
+                input#maxAge(type='text' name='maxAge' readonly='' style='width:25px;')
+                br
+                |     Prefered Height Range in cm: 
+                |         min
+                input#minHeight(type='text' name='minHeight' readonly='' style='width:30px;')
+                #height-range(style='width:150px; display:inline-block; margin-left:10px; margin-right:10px;')
+                |         max
+                input#maxHeight(type='text' name='maxHeight' readonly='' style='width:30px;')
+                br
+                |     Prefered Religion:
+                select(name='religion' size='1')
+                    option(value='n' selected='selected')  No Preference 
+                    option(value='Christianity')  Christianity 
+                    option(value='Islam')  Islam 
+                    option(value='Hinduism')  Hinduism 
+                    option(value='Buddhism')  Buddhism 
+                    option(value='Other')  Other 
+                    option(value='Not religious')  Not religious 
+                br
+                script.
+                    console.log(min, max);
+                input(type='submit' value='Search!')
+                input(type='reset' value='Clear')
 
         if results
-            h2 Your Matches:
-            -let count=0
-            each item in results.data
-                img(src=`./profile_pictures/${item.pfp_path}` alt='Profile Picture' border='0' height='75' width='75')
-                p Match #{++count}: #{item.profile.name} age #{item.profile.age}, favorite hobby: #{item.profile.hobby}
-
-
-  
+            .matches_container
+                h2.matches_h2 Your Matches:
+                -let count=0
+                each item in results.data
+                    //.matches_container
+                    p.matches_header #{item.profile.name}
+                    img.matches_img(src=`./profile_pictures/${item.pfp_path}` alt='Profile Picture' border='0' height='100' width='100')
+                    p.matches_body #{item.profile.gender} age #{item.profile.age}, <br> Favorite Hobby: #{item.profile.hobby}, <br> Religion: #{item.profile.religion}
+                    br
