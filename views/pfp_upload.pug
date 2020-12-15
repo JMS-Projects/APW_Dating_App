@@ -1,15 +1,15 @@
-doctype html
-html
-    head
-        title Pfp Upload
+extends main_layout
+block head
+    title Pfp Upload
+block content    
     body
-        h1 Submit a profile picture
-        if msg
-            p #{msg}
-        form(action="/pfp_upload" method="post" enctype="multipart/form-data")
-            label(for="img")
-                | Select picture:
-            input(type="file" id="img" name="img" accept="image/*")
-            input(type="submit")
-        br
-        img(src='' + file, alt="failure")
+        .pfp_container
+            .pfp_header
+                h2 Submit a profile picture
+            if msg
+                h2.message #{msg}
+            form(action="/pfp_upload" method="post" enctype="multipart/form-data")
+                label.pfp_label(for="img") Select picture:
+                input.pfp_button(type="file" id="img" name="img" accept="image/*")
+                input.pfp_button(type="submit")
+            br

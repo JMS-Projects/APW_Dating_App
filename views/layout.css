@@ -288,3 +288,47 @@ p {
     display: inline-block;
     margin-left: 5px;
 }
+
+.pfp_container{
+    background: #C50D0D;
+    height: auto;
+    width: 500px;
+    padding: 5px;
+    margin: 150px auto;
+    color: #ffffff;
+    text-align: center;
+}
+
+.pfp_header{
+    background: #600000;
+    width: auto;
+    height: 50px;
+    margin: -5px;
+}
+
+.pfp_header h2{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-size: 40px;
+}
+
+.pfp_label{
+    font-size: 26px;
+}
+
+.pfp_textbox{
+    width: 80%;
+    height: 25px;
+    font-size: 20px;
+    margin: 10px;
+    background: #FF6767;
+    border: 0;
+}
+
+.pfp_button{
+    width: 80%;
+    height: 25px;
+    margin: 6px;
+    font-size: 18px;
+    border-radius: 0%;
+    color: #000000;

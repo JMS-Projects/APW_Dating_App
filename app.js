@@ -527,14 +527,15 @@ app.post('/pfp_upload', function(req, res){
         // successful upload
         else{
             // in this case, we delete the picture in the server's file system
-            if (req.session.user.pfp_path)
+            if (req.session.user.pfp_path && req.session.user.pfp_path != "default_pfp.png")
             {
                 let path = `./profile_pictures/${req.session.user.pfp_path}`;
-                fs.unlink(path, (err) => {
-                if (err) 
-                {
-                    console.error(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile picture deletion has run into an error: ${err}`);
-                }});
+                
+                    fs.unlink(path, (err) => {
+                    if (err) 
+                    {
+                        console.error(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile picture deletion has run into an error: ${err}`);
+                    }});
             }
             req.session.user.pfp_path = req.file.filename;
             dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: {pfp_path: req.file.filename}});
