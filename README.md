@@ -1,27 +1,25 @@
 # APW_Dating_App
 Semester project for Advanced Programming Workshop: Javascript
 
-Description
+Description:
 Dating App is an online server where users can make a profile and match up with potential mates.
 
-Requirements
-$ npm install multer express-session connect-flash body-parser express pubnub jquery cloudfare querystring path fs mongodb
-
-Installation
+Installation:
 $ git clone https://github.com/Revvynsken/APW_Dating_App.git
-$ cd APW_Dating_App
+$ npm install express express-session body-parser mongodb connect-flash multer pubnub jquery pug
 
-Start
+Start:
+$ cd APW_Dating_App
 $ run app.js
 Then open http://localhost:9660 to view the sample page
 
-Languages & Tools
+Languages & Tools:
 Javascript
 Pug
 HTML
 CSS
 
-Credit
+Credit:
 Professor Jake Levy: APW Fall 2020
 John Resig: JQuery
 Jared Hanson & TJ Holowaychuk: connect-flash
@@ -33,6 +31,16 @@ Gozlala (github.com/Gozala/querystring): querystring
 Eliot Horowitz, Kevin P. Ryan, Dwight Merriman: mongodb
 npm: fs
 APW Javascript Fall 2020 Group 4: Andrew, Giscom, Chandler Spinelli, Jason Spina, Sameer Alam, Ryan Morgan, Talia Tomarchio
+
+
+Authors:
+Jason Spina
+Andrew Griscom
+Talia Tomarchio
+Ryan Morgan
+Chandler Spinelli
+Sameer Alam
+
 
 If you have any problems, you can reach us at:
 info@datingapp.js
