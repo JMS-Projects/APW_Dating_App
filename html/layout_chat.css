@@ -1,0 +1,176 @@
+
+
+body {
+    background: linear-gradient(#FF6767, #FF4A4A, #C50D0D);
+    height: 100vh;
+    font-family: 'Josefin Sans', sans-serif;
+}
+    
+.Banner {
+    padding: 10px;
+    height: 100px;
+    background: #6E0000;
+    color: #FFFFFF;
+    text-align: center;
+    margin: -8px;
+}
+
+.fontsize {
+    font-size: 27px;
+}
+
+.Profile_img {
+    height: 75px;
+    width: 75px;
+    background: #FFFFFF;
+}
+
+.Links{
+    font-size: 20px;
+    text-align: center; 
+}
+
+.plinks {
+    display: inline-block
+}
+
+p {
+    font-size: 20px;
+}
+
+.button {
+    text-align: center;
+    font-size: 30px;
+}
+    
+.linktext {
+    font-size: 35px;
+}
+
+.hlinks  {
+    color: #FF6767;
+    font-size: 30px;
+    position: relative;
+    bottom: 10px;
+}
+
+.hlinks a {
+    color: #FF6767;
+}
+
+.profilepic {
+    position: absolute;
+    transform: translate(75%, -75%)
+}
+    
+.desc {
+    font-size: 30px;
+}
+ 
+.ptitle {
+    font-size: 25px
+}
+
+.login_container{
+    background: #C50D0D;
+    height: auto;
+    width: 500px;
+    padding: 5px;
+    margin: 150px auto;
+    color: #ffffff;
+    text-align: center;
+}
+
+.login_header{
+    background: #600000;
+    width: auto;
+    height: 50px;
+    margin: -5px;
+}
+
+.login_header h2{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-size: 40px;
+}
+
+.login_label{
+    font-size: 26px;
+}
+
+.login_textbox{
+    width: 50%;
+    height: 25px;
+    font-size: 20px;
+    margin: 10px;
+    background: #FF6767;
+    border: 0;
+}
+
+.login_button{
+    width: 40%;
+    height: 25px;
+    margin: 6px;
+    font-size: 18px;
+    border-radius: 50%;
+    color: #FF4A4A;
+}
+
+.message{
+    width: 15%;
+    font-size: 15px;
+    display: inline-block;
+    background: #E30022;      
+      
+}
+
+.sendButton {
+    font-size: 16px;
+    border-radius: 8px;
+    color: #FF4A4A;
+}
+
+.userNameBar {
+    width: 15%;
+    font-size: 15px;
+    background: #E30022;
+    border: 1;
+
+}
+
+.joinButton {
+    border-radius: 8px;
+    font-size: 16px;
+    color: #FF4A4A;
+}
+
+
+.groupchat {
+
+    position: absolute;
+    left: 1050px; 
+    top: 230px;
+      
+}
+
+
+::placeholder { 
+    color: #FFFFFF;
+    opacity: 0.7; 
+  }
+
+
+.userList {
+    font-size: 20px;
+}
+
+
+.leaveButton {
+    border-radius: 8px;
+    font-size: 16px;
+    color: #FF4A4A;
+}
+
+
+
+    

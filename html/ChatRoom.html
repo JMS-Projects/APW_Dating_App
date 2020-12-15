@@ -1,6 +1,6 @@
 <!-- Using a chat API named pubnub to create a simple chat application in an HTML page with less code -->
 <!-- PubNub works on a channel that allows messages to be sent and obtained when subscribed-->
-<!--Author: Sameer Alam-->
+<!-- Author: Sameer Alam-->
 
 <!doctype html>
 <html>
@@ -9,7 +9,7 @@
 	<script src="http://cdn.pubnub.com/pubnub.min.js"></script>
 	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 	
-	<link rel="stylesheet" href="layout.css">
+	<link rel="stylesheet" href="layout_chat.css">
 	<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&amp;display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&amp;display=swap" rel="stylesheet">
 </head>
@@ -24,18 +24,19 @@
 		  &#10084;
 		  &nbsp; <a href="/chat">Chat</a>&nbsp; 
 		  &#10084;
-		  &nbsp;  <a href="/logout">Logout</a></span><a class="profilepic" href="/profile"><img src="undefined" alt="1" border="0" height="75" width="75"></a>
+		  &nbsp;  <a href="/logout">Logout</a></span><a class="profilepic" href="/profile"><img src="img/default_pfp.png" alt="1" border="0" height="75" width="75"></a>
 	  </div>
 
-	<h2>Dating Chat Room</h2>
-	<h3><u>Users Online:</u></h3>
+	<h1>&#10084; Dating Chat Room &#10084;</h1>
+	<h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#10084; Users Online: &#10084;</h2>
 
 
-	<div id="userList" class="table-bordered userList" ></div>
-	<button id="leaveButton" class="btn btn-danger leaveButton" onclick="leave()">Leave</button>
-	<div id="chatHistory" class="table-bordered chatHistory"></div>
-	<input type="text" id="message" placeholder="Enter your message here" class="message" autocomplete="off"/>
-	<button id="sendButton" class="btn btn-primary sendButton">Send</button>
+	<div id="userList" class="userList" ></div>
+	<button id="leaveButton" class="leaveButton" onclick="leave()">Leave</button>
+	<div id="chatHistory" class="chatHistory"></div>
+	<input type="text" maxlength="75" id="message" placeholder="Enter your message here" class="message" autocomplete="off"/>
+	<button id="sendButton" class="sendButton">Send</button>
+	<img src="img/groupchat.png" class="groupchat" alt="groupchat" width="700" height="600">
 
 	<script type="text/javascript">
 	//Creating PubNub key to allow me to use their library
@@ -74,6 +75,7 @@
 				}
 			});
 
+									
 		//Allows users message to output to the channel
 			pubnub.bind('click', pubnub.$('sendButton'), function(e) { 
 				pubnub.publish({

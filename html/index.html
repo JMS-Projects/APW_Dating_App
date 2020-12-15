@@ -8,7 +8,7 @@
 	<script src="http://cdn.pubnub.com/pubnub.min.js"></script>
 	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 	
-	<link rel="stylesheet" href="layout.css">
+	<link rel="stylesheet" href="layout_chat.css">
 	<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&amp;display=swap" rel="stylesheet">
   	<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&amp;display=swap" rel="stylesheet">
 </head>
@@ -22,15 +22,17 @@
 	  &#10084;
 	  &nbsp; <a href="/chat">Chat</a>&nbsp; 
 	  &#10084;
-	  &nbsp;  <a href="/logout">Logout</a></span><a class="profilepic" href="/profile"><img src="undefined" alt="1" border="0" height="75" width="75"></a>
+	  &nbsp;  <a href="/logout">Logout</a></span><a class="profilepic" href="/profile"><img src="img/default_pfp.png" alt="1" border="0" height="75" width="75"></a>
+	  
   </div>
 
 <body>
 
-	<h1 class="welcome"> Welcome To The Dating Chat</h1>
-	<input id="userName" type="text" placeholder="Enter Anonymous Nickname" class="userNameBar" onkeydown="keyDown(event)" />
-	<button id="joinButton" class="btn btn-primary joinButton" onclick="joinRoom()">Join</button>
-	</body></html>
+	<h1 class="welcome">&#10084; Welcome To The Dating Chat &#10084;</h1>
+	<h3 class="welcomedesc">&#10084; Users are able to create an anonymous nickname and join a community chat filled with others! This is a great way for any newcomers to get a feel for the community and become more comfortable. &#10084; </h3>
+	<input id="userName" type="text" maxlength="20" placeholder="Enter Anonymous Nickname" autocomplete="off" class="userNameBar" onkeydown="keyDown(event)" />
+	<button id="joinButton" class="joinButton" onclick="joinRoom()">Join</button>
+	<img src="img/groupchat.png" class="groupchat" alt="groupchat" width="700" height="600">
 
 	<script type="text/javascript">
 	//Add js to join button to allow user to be redirected to the chatroom
@@ -38,7 +40,11 @@
 			var uuid = $('#userName').val();
 			window.location = 'ChatRoom.html?uuid=' + uuid;
 
+	
+
 	}
+
+	
 
 	//Disables User from pressing the space bar when creating user name
 	function keyDown(e) { 
