@@ -61,7 +61,7 @@ app.use(function (req, res, next){
     }
     next();
 })
-//Author: Andrew Griscom
+//Author: Andrew Griscom with help from Jason
 app.get('/', function (req, res){
     if(!req.session.user){
         res.render('home', {msg: req.flash('msg'), trusted: false, pfp: "./profile_pictures/default_pfp.png"});
@@ -78,7 +78,7 @@ app.get('/logout', function(req, res,next)
     res.redirect('/');
 });
 
-// Ryan Morgan
+// Ryan Morgan with help from Jason and Andrew
 app.get('/search', function(req, res, next)
 {
     if (req.session.user)
@@ -91,8 +91,7 @@ app.get('/search', function(req, res, next)
     }
 });
 
-// Ryan Morgan,
-
+// Ryan Morgan with help from Jason and Andrew
 app.post('/search', function(req, res){
     postData = '';
     req.on('data', (data) =>{
@@ -273,14 +272,12 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
     }
 });
 
+//Ryan Morgan with help from Jason and Andrew
 app.get('/match', function(req, res, next)
 {
     if (req.session.user)
     {
         res.render('match', {trusted: true, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
-        /*matchResp(null, res).then(
-        page=> {    res.send(page); }
-        ).catch(next);*/
     }
     else
     {
@@ -288,7 +285,7 @@ app.get('/match', function(req, res, next)
     }
 });
 
-// Ryan Morgan,
+// Ryan Morgan with help from Jason and Andrew
 app.post('/match', function(req, res){
     postData = '';
     req.on('data', (data) =>{
@@ -367,7 +364,7 @@ app.post('/match', function(req, res){
     });
 });
 
-//Author: Andrew Griscom
+//Author: Andrew Griscom with help form Jason
 app.get('/profile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing profile page`);
     if (req.session.user)
@@ -386,12 +383,14 @@ app.get('/profile', function(req, res, next){
         res.redirect('/login');
     }
 });
-
+// Author: Andrew Griscom with help from Jason
 app.post('/profile', bp.urlencoded({extended: false}) , async function(req, res)
 {
-   
+    //The document to update user
     let updateDoc = {};
+    // The update for the subdocument of profile
     updateDoc.profile = {};
+    //update statements that will update the values in the db if not blank
     if (req.body.pWord.trim() != '') updateDoc.password = req.body.pWord.trim();
     if (req.body.email.trim() != '') updateDoc.email = req.body.email.trim();
     if (req.body.city.trim() != '') updateDoc.city = req.body.city.trim();
@@ -405,7 +404,9 @@ app.post('/profile', bp.urlencoded({extended: false}) , async function(req, res)
     if (req.body.income.trim() != '') updateDoc.profile.income = req.body.income.trim();
     if (req.body.religion.trim() != '') updateDoc.profile.religion = req.body.religion.trim();
     try{
+        // Statement to get the correct user and update its properties
         dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: updateDoc});
+        // Statement to change the sessions users to reflect the updates made to the user
         req.session.user = await dbManager.get().collection("users").findOne({username: req.session.user.username});
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s account information has been updated`);
         req.flash('msg', 'Profile has been updated');
@@ -422,19 +423,23 @@ app.post('/profile', bp.urlencoded({extended: false}) , async function(req, res)
 //Author: Andrew Griscom
 app.get('/rProfile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for creating profile page`);
+    // if there is a user and but not a profile
     if (req.session.user && req.session.user.profile == null)
     {
         res.render('rProfile', {trusted: true, msg: req.flash('msg'), pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
-    else if(req.session.user.profile != null){
+    // if there is a user but they already have a profile
+    else if(req.session.user && req.session.user.profile != null){
         req.flash('msg', 'You have already created a profile! You can edit your profile here.');
         res.redirect('/profile');
-    }    
+    }   
+    // if there is no user  
     else{
         
         res.redirect('/login');
     }
 });
+//Author: Andrew Griscom
 app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
     for (prop in req.body)
     {
@@ -446,7 +451,9 @@ app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
             return;
         }
     }
+    // update document for the profile subdocument in user class
     let updateDoc = {};
+    // update statements to update the profile attributes.
     updateDoc.name = req.body.name.trim();
     updateDoc.age = parseFloat(req.body.age.trim());
     updateDoc.gender = req.body.gender.trim();
@@ -457,6 +464,7 @@ app.post('/rProfile', bp.urlencoded({extended: false}), function(req, res){
     updateDoc.religion = req.body.religion.trim();
     req.session.user.profile = updateDoc;
     try{
+        // Statement to update the profile in the database
         dbManager.get().collection("users").updateOne({username: req.session.user.username}, {$set: {profile: updateDoc}});
         console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${req.session.user.username}'s profile has been created`);
         req.flash('msg', 'Your profile has been created')
