@@ -349,7 +349,7 @@ app.post('/match', function(req, res){
 		
             await cursor.forEach((item)=>{
                 let curItem={};   
-                curItem = new User({username: item.username, password: item.password, email: item.email, city: item.city, state: item.state, profile: item.profile});
+                curItem = new User({username: item.username, password: item.password, email: item.email, city: item.city, state: item.state, profile: item.profile, pfp_path: item.pfp_path});
                 // Check to see if profile pulled from database is not the profile of current user
                 if (item.username != req.session.user.username){
                     data.push(curItem);
