@@ -2,116 +2,118 @@ extends main_layout
 block head
   title Profile
 block content
-  form(method='post')  
-    h1 Your Account Setting
-    p To edit your information just change the attributes you want.
-    if msg
-      h3.message #{msg}
+  .profile_container
+    .profile_header
+      h2 Your Account Settings
+    form(method='post')  
+      p To edit your information just change the attributes you want.
+      label.profile_lable(for='uName') User Name:   
+      input.profile_textbox(type='text' name='uName' value=user.username readonly)
       br
-    |         User Name:   
-    input(type='text' name='uName' value=user.username readonly)
-    br
-    br
-    |         Password:
-    input(type='text' name='pWord' value=user.password)   
-    br
-    br
-    |         Email:
-    input(type='text' name='email' value=user.email) 
-    br
-    br 
-    |         City:     
-    input(type='text' name='city' value=user.city)
-    br
-    br
-    |         State: 
-    input(type='text' name='state' value=user.state)  
-    br
-    br 
-    h2 Personal Information
-    |         Name:
-    input(type='text' name='name' value=user.profile.name)     
-    br
-    br
-    |         Age:
-    input(type='text' name='age' value=user.profile.age) 
-    br
-    br 
-    |         Gender:   #{user.profile.gender}   
-    br
-    label(for='gender') Select your Gender
-    select#gender(name='gender' selected value=user.profile.gender)
-      option(value=user.profile.gender selected='selected') #{user.profile.gender}
-      option(value='Male') Male
-      option(value='Female') Female
-      option(value='Other') Other  
-    br
-    br
-    |         Height:   #{user.profile.height}   cm  
-    br
-    .slidecontainer
-      input#myRange.slider(type='range' min='100' max='250' value=user.profile.height name='height')
-    |     Height: 
-    span#heightS
-    br
-    br
-    |         Race:  #{user.profile.race}
-    br
-    label(for='race') Select the race that you most identify as
-    select#race(name='race')
-      option(value=user.profile.race selected='selected') #{user.profile.race}
-      option(value='White') White
-      option(value='Black/African American') Black/African American
-      option(value='Asian') Asian
-      option(value='Hispanic') Hispanic
-      option(value='Other') Other
-    br
-    br
-    |         Favorite hobby:
-    input(type='text' name='hobby' value=user.profile.hobby)
-    br
-    br
-    |         Income:   #{user.profile.income} 
-    br
-    input(type='radio' name='income' value=user.profile.income checked='checked')
-    label(for=user.profile.income) #{user.profile.income}
-    br
-    input#less(type='radio' name='income' value='less than $40,000')
-    label(for='less') Less than $40,000 a year
-    br
-    input(type='radio' id='40,000' name='income' value='$40,000')
-    label(for='40,000') Around $40,000 a year
-    br
-    input(type='radio' id='75,000' name='income' value='$75,000')
-    label(for='75,000') Around $75,000 a year
-    br
-    input(type='radio' id='100,000' name='income' value='$100,000')
-    label(for='100,000') Around $100,000 a year
-    br
-    input(type='radio' id='300,000' name='income' value='$300,000')
-    label(for='300,000') Around $300,000 a year
-    br
-    input#more(type='radio' name='income' value='more than $300,000')
-    label(for='more') More than $300,000 a year
-    br
-    br
-    |         Religion:   #{user.profile.religion}
-    br
-    label(for='religion') Enter the religion you most align with
-    select#religion(name='religion')
-      option(value=user.profile.religion selected='selected') #{user.profile.religion}
-      option(value='Christianity') Christianity
-      option(value='Islam') Islam
-      option(value='Hinduism') Hinduism
-      option(value='Buddhism') Buddhism
-      option(value='Other') Other
-      option(value='Not religious') Not religious
-    br
-    br
-    input(type='submit' value='Sumbit')
-  script.
-      var slider = document.getElementById("myRange");
-      var output = document.getElementById("heightS");
-      output.innerHTML = slider.value;
-      slider.oninput = function() {output.innerHTML = this.value;}
+      br
+      label.profile_lable(for='pWord') Password:
+      input.profile_textbox(type='text' name='pWord' value=user.password)   
+      br
+      br
+      label.profile_lable(for='email') Email:
+      input.profile_textbox(type='text' name='email' value=user.email) 
+      br
+      br 
+      label.profile_lable(for='city') City:     
+      input.profile_textbox(type='text' name='city' value=user.city)
+      br
+      br
+      label.profile_lable(for='state') State: 
+      input.profile_textbox(type='text' name='state' value=user.state)  
+      br
+      br 
+      h3 Personal Information
+      label.profile_lable(for='name') Name:
+      input.profile_textbox(type='text' name='name' value=user.profile.name)     
+      br
+      br
+      label.profile_lable(for='age') Age:
+      input.profile_textbox(type='text' name='age' value=user.profile.age) 
+      br
+      br 
+      label.profile_lable(for='gender') Gender:   #{user.profile.gender}   
+      br
+      label.profile_label(for='gender') Select your Gender
+      select.profile_textbox#gender(name='gender' selected value=user.profile.gender)
+        option(value=user.profile.gender selected='selected') #{user.profile.gender}
+        option(value='Male') Male
+        option(value='Female') Female
+        option(value='Other') Other  
+      br
+      br
+      label.profile_lable(for='height') Height:   #{user.profile.height}   cm  
+      br
+      .slidecontainer
+        input.profile_textbox#myRange.slider(type='range' min='100' max='250' value=user.profile.height name='height')
+      |     Height: 
+      span#heightS
+      br
+      br
+      |         Race:  #{user.profile.race}
+      br
+      br
+      label(for='race') Select the race that you most identify as
+      select.profile_textbox#race(name='race')
+        option(value=user.profile.race selected='selected') #{user.profile.race}
+        option(value='White') White
+        option(value='Black/African American') Black/African American
+        option(value='Asian') Asian
+        option(value='Hispanic') Hispanic
+        option(value='Other') Other
+      br
+      br
+      label.profile_lable(for='hobby') Favorite hobby:
+      input.profile_textbox(type='text' name='hobby' value=user.profile.hobby)
+      br
+      br
+      label.profile_lable(for='income') Income: #{user.profile.income} 
+      br
+      br
+      input(type='radio' name='income' value=user.profile.income checked='checked')
+      label(for=user.profile.income) #{user.profile.income}
+      br
+      input.box#less(type='radio' name='income' value='less than $40,000')
+      label(for='less') Less than $40,000 a year
+      br
+      input(type='radio' id='40,000' name='income' value='$40,000')
+      label(for='40,000') Around $40,000 a year
+      br
+      input(type='radio' id='75,000' name='income' value='$75,000')
+      label(for='75,000') Around $75,000 a year
+      br
+      input(type='radio' id='100,000' name='income' value='$100,000')
+      label(for='100,000') Around $100,000 a year
+      br
+      input(type='radio' id='300,000' name='income' value='$300,000')
+      label(for='300,000') Around $300,000 a year
+      br
+      input#more(type='radio' name='income' value='more than $300,000')
+      label(for='more') More than $300,000 a year
+      br
+      br
+      label.profile_lable(for='religion') Religion:   #{user.profile.religion}
+      br
+      br
+      label.profile_label(for='religion') Enter the religion you most align with
+      select.profile_textbox#religion(name='religion')
+        option(value=user.profile.religion selected='selected') #{user.profile.religion}
+        option(value='Christianity') Christianity
+        option(value='Islam') Islam
+        option(value='Hinduism') Hinduism
+        option(value='Buddhism') Buddhism
+        option(value='Other') Other
+        option(value='Not religious') Not religious
+      br
+      br
+      input.profile_textbox(type='submit' value='Sumbit')
+    script.
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("heightS");
+        output.innerHTML = slider.value;
+        slider.oninput = function() {output.innerHTML = this.value;}
 
