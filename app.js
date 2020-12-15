@@ -368,7 +368,14 @@ app.get('/profile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing profile page`);
     if (req.session.user)
     {
-        res.render('profile', {user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        if(req.session.user.profile != null)
+        {
+            res.render('profile', {user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
+        }
+        else
+        {
+            res.redirect('/rProfile');
+        }
     }
     else
     {
