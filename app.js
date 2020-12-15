@@ -241,7 +241,7 @@ app.post('/register', bp.urlencoded({extended: false}), async (req, res) =>
 			{
                 console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] ${curUser.username} has been registered`);
                 req.session.user = curUser;
-                res.redirect('/');
+                res.redirect('/rProfile');
                 // render home page with success message
                 // let msg = `You have successfully registered as ${curUser.username}`
                 // res.render('/', {msg:msg})
@@ -368,14 +368,7 @@ app.get('/profile', function(req, res, next){
     console.log(`[${new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York"})}] Request for viewing profile page`);
     if (req.session.user)
     {
-        if(req.session.user.profile != null)
-        {
-            res.render('profile', {user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
-        }
-        else
-        {
-            res.redirect('/rProfile');
-        }
+        res.render('profile', {user: req.session.user, pfp: `./profile_pictures/${req.session.user.pfp_path}`});
     }
     else
     {
