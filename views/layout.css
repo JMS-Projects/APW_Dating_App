@@ -115,7 +115,7 @@ p {
 }
 
 .message{
-    width: 50%;
+    width: 100%;
     background: green;
     font-size: 20px;
     text-align: center;
