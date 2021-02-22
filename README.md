@@ -30,7 +30,7 @@ Lee Holloway: cloudfare
 Gozlala (github.com/Gozala/querystring): querystring
 Eliot Horowitz, Kevin P. Ryan, Dwight Merriman: mongodb
 npm: fs
-APW Javascript Fall 2020 Group 4: Andrew, Giscom, Chandler Spinelli, Jason Spina, Sameer, Ryan Morgan, Talia Tomarchio
+APW Javascript Fall 2020 Group 4: Andrew, Giscom, Chandler Spinelli, Jason Spina, Sameer Alam, Ryan Morgan, Talia Tomarchio
 
 
 Authors:
@@ -39,7 +39,7 @@ Andrew Griscom
 Talia Tomarchio
 Ryan Morgan
 Chandler Spinelli
-Sameer (Last name withheld for security reasons)
+Sameer Alam
 
 
 If you have any problems, you can reach us at:
